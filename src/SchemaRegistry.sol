@@ -2,10 +2,10 @@
 pragma solidity ^0.8.20;
 
 import {Schema} from "./libs/Structs.sol";
-import {AttestorsRegistry} from "./AttestorsRegistry.sol";
+import {ValidatorsRegistry} from "./ValidatorsRegistry.sol";
 
 contract SchemaRegistry {
-    AttestorsRegistry public $attestorsRegistry;
+    ValidatorsRegistry public $validatorsRegistry;
     mapping(bytes32 schemaId => Schema schema) public $schemas;
 
     uint256 public schemaCount;
@@ -31,6 +31,6 @@ contract SchemaRegistry {
 
         $schemas[newSchema.schemaId] = newSchema;
 
-        AttestorsRegistry(address($attestorsRegistry)).addSchema(newSchema);
+        ValidatorsRegistry(address($validatorsRegistry)).addSchema(newSchema);
     }
 }

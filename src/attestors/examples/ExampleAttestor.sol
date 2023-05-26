@@ -16,6 +16,11 @@ contract ExampleAttestor is Attestor {
         uint256 value,
         bytes memory data
     ) internal override {
+        bool owner = $masterRegistry.hasAttestation(
+            attestation.attestee,
+            attestation.schemaId
+        );
+        require(!owner, "Already attested");
         for (uint256 i = 0; i < $modules.length; i++) {
             require(
                 Module($modules[i]).runModule(attestation, value, data),
@@ -26,6 +31,18 @@ contract ExampleAttestor is Attestor {
 
     function _afterAttest(
         Attestation memory attestation,
+        uint256 value,
+        bytes memory data
+    ) internal override {}
+
+    function _beforeUpdate(
+        UpdateRequest memory _updateRequest,
+        uint256 value,
+        bytes memory data
+    ) internal override {}
+
+    function _afterUpdate(
+        UpdateRequest memory _updateRequest,
         uint256 value,
         bytes memory data
     ) internal override {}

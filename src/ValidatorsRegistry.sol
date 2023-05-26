@@ -5,7 +5,7 @@ import {Schema} from "./libs/Structs.sol";
 import {Attestor} from "./interfaces/Attestor.sol";
 import {SchemaRegistry} from "./SchemaRegistry.sol";
 
-contract AttestorsRegistry {
+contract ValidatorsRegistry {
     SchemaRegistry public $schemaRegistry;
     mapping(address attestor => bool registered) public attestors;
     mapping(address attestor => mapping(bytes32 schemaId => bool registered))

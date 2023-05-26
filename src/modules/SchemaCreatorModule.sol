@@ -7,8 +7,8 @@ contract SchemaCreatorModule is Module {
     constructor(
         MasterRegistry _masterRegistry,
         SchemaRegistry _schemaRegistry,
-        AttestorsRegistry _attestorsRegistry
-    ) Module(_masterRegistry, _schemaRegistry, _attestorsRegistry) {}
+        ValidatorsRegistry _validatorsRegistry
+    ) Module(_masterRegistry, _schemaRegistry, _validatorsRegistry) {}
 
     function runModule(
         Attestation memory attestation,

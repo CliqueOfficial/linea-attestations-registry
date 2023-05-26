@@ -2,21 +2,23 @@
 pragma solidity ^0.8.20;
 
 import {SchemaRegistry} from "./SchemaRegistry.sol";
-import {AttestorsRegistry} from "./AttestorsRegistry.sol";
-import {Attestation} from "./libs/Structs.sol";
+import {ValidatorsRegistry} from "./ValidatorsRegistry.sol";
+import {Attestation, UpdateRequest} from "./libs/Structs.sol";
 
 error OnlyRegisteredAttestors();
 
 contract MasterRegistry {
-    AttestorsRegistry public $attestorsRegistry;
+    ValidatorsRegistry public $validatorsRegistry;
     SchemaRegistry public $schemaRegistry;
 
-    mapping(address attestee => mapping(bytes32 schemaId => Attestation attestation))
+    mapping(bytes32 attestationId => Attestation attestation)
         public $attestations;
+    mapping(address attestee => mapping(bytes32 schemaId => bytes32[]) attestationIds)
+        public $attestationIds;
 
     modifier onlyAttestor() {
         require(
-            $attestorsRegistry.attestors(msg.sender) == true,
+            $validatorsRegistry.attestors(msg.sender) == true,
             "Must be a registered attestor"
         );
         _;
@@ -27,28 +29,59 @@ contract MasterRegistry {
     }
 
     // Only the attestor registry can record attestations.
-    function attest(Attestation memory _attestation) external onlyAttestor {}
+    function attest(Attestation memory _attestation) external onlyAttestor {
+        $attestations[_attestation.attestationId] = _attestation;
+        $attestationIds[_attestation.attestee][_attestation.schemaId].push(
+            _attestation.attestationId
+        );
+    }
 
-    function attestBatch(
-        Attestation[] memory _attestation
-    ) external onlyAttestor {}
+    // function attestBatch() external onlyAttestor {}
 
-    function update() external onlyAttestor {}
+    function update(UpdateRequest memory _updateRequest) external onlyAttestor {
+        Attestation memory attestation = $attestations[
+            _updateRequest.attestationId
+        ];
+        attestation.updatedDate = uint64(block.timestamp);
+        attestation.expirationDate = _updateRequest.expirationDate;
+        attestation.attestationData = _updateRequest.attestationData;
+        $attestations[_updateRequest.attestationId] = attestation;
+    }
 
-    function updateBatch() external onlyAttestor {}
+    // function updateBatch() external onlyAttestor {}
 
-    function revoke() external onlyAttestor {}
+    function revoke(bytes32 attestationId) external {
+        address attestee = $attestations[attestationId].attestee;
+        address attestor = $attestations[attestationId].attestor;
+        bytes32 schemaId = $attestations[attestationId].schemaId;
+        require(
+            msg.sender == attestee || msg.sender == attestor,
+            "Only attestee or attestor can revoke"
+        );
+        delete $attestations[attestationId];
+        delete $attestationIds[attestee][schemaId];
+    }
 
-    function revokeBatch() external onlyAttestor {}
+    // function revokeBatch() external onlyAttestor {}
 
-    function getAttestations(
+    function hasAttestation(
         address attestee,
-        bytes32[] memory schemaIds
-    ) public view returns (Attestation[] memory) {
-        Attestation[] memory attestations = new Attestation[](schemaIds.length);
-        for (uint256 i = 0; i < schemaIds.length; i++) {
-            attestations[i] = $attestations[attestee][schemaIds[i]];
-        }
-        return attestations;
+        bytes32 schema
+    ) external view returns (bool) {
+        bytes32[] memory attestationIds = $attestationIds[attestee][schema];
+        return attestationIds.length > 0;
+    }
+
+    function getAttestationSchemaId(
+        bytes32 attestationId
+    ) external view returns (bytes32) {
+        return $attestations[attestationId].schemaId;
+    }
+
+    function getAttesteeAttestationIdsBySchema(
+        address attestee,
+        bytes32 schemaId
+    ) external view returns (bytes32[] memory) {
+        return $attestationIds[attestee][schemaId];
     }
 }

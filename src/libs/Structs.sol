@@ -1,8 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+struct UpdateRequest {
+    bytes32 attestationId;
+    uint64 expirationDate;
+    bytes attestationData;
+}
+
 struct AttestationRequest {
     bytes32 schemaId;
+    address attestor;
     address attestee;
     address implementation;
     uint64 expirationDate;
@@ -14,6 +21,7 @@ struct Attestation {
     bytes32 schemaId;
     address attestor;
     address attestee;
+    address validator;
     address implementation;
     uint64 attestedDate;
     uint64 updatedDate;
