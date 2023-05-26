@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+struct EIP712Signature {
+    uint8 v; // The recovery ID.
+    bytes32 r; // The x-coordinate of the nonce R.
+    bytes32 s; // The signature data.
+}
+
 struct UpdateRequest {
     bytes32 attestationId;
     uint64 expirationDate;

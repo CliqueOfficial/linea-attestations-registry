@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {ECDSA} from "openzeppelin/utils/cryptography/ECDSA.sol";
+import "openzeppelin/utils/cryptography/ECDSA.sol";
 import "openzeppelin/interfaces/IERC165.sol";
 import {MasterRegistry} from "../MasterRegistry.sol";
 import {SchemaRegistry} from "../SchemaRegistry.sol";
 import {ModulesRegistry} from "../ModulesRegistry.sol";
 import {Module} from "../interfaces/Module.sol";
-import {Attestation, AttestationRequest, UpdateRequest} from "../libs/Structs.sol";
+import {Attestation, AttestationRequest, UpdateRequest, EIP712Signature} from "../libs/Structs.sol";
 
 abstract contract Attestor is IERC165 {
+    using ECDSA for bytes32;
+
     MasterRegistry public $masterRegistry;
     SchemaRegistry public $schemaRegistry;
     ModulesRegistry public $modulesRegistry;
@@ -85,7 +87,7 @@ abstract contract Attestor is IERC165 {
 
     function delagatedAttest(
         AttestationRequest memory _attestationRequest,
-        bytes32 signature,
+        EIP712Signature memory signature,
         bytes memory data
     ) external payable {
         _verifySignature(_attestationRequest, signature);
@@ -101,7 +103,7 @@ abstract contract Attestor is IERC165 {
 
     function delegatedAttestBatch(
         AttestationRequest[] memory _attestationRequests,
-        bytes32[] memory signatures,
+        EIP712Signature[] memory signatures,
         bytes[] memory data
     ) external payable {
         require(
@@ -165,8 +167,8 @@ abstract contract Attestor is IERC165 {
 
     function _verifySignature(
         AttestationRequest memory _attestationRequest,
-        bytes32 signature
-    ) internal {
+        EIP712Signature memory signature
+    ) internal pure {
         bytes32 messageHash = keccak256(
             abi.encode(
                 _attestationRequest.schemaId,
@@ -178,9 +180,17 @@ abstract contract Attestor is IERC165 {
                 _attestationRequest.attestationData
             )
         );
+        bytes32 ethSignedMessageHash = ECDSA.toEthSignedMessageHash(
+            messageHash
+        );
+        address signer = ECDSA.recover(
+            ethSignedMessageHash,
+            signature.v,
+            signature.r,
+            signature.s
+        );
         require(
-            messageHash.toEthSignedMessageHash().recover(signature) ==
-                _attestationRequest.attestor,
+            signer == _attestationRequest.attestor,
             "AttestationRequest data not signed by attestor"
         );
     }
