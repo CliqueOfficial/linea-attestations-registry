@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "../../interfaces/Attestor.sol";
+import "../../base/Attestor.sol";
 
 contract ExampleAttestor is Attestor {
+    error AlreadyAttested();
+    error ModuleFailed(address module);
+
     constructor(
         MasterRegistry _masterRegistry,
         SchemaRegistry _schemaRegistry,
@@ -20,12 +23,10 @@ contract ExampleAttestor is Attestor {
             attestation.attestee,
             attestation.schemaId
         );
-        require(!owner, "Already attested");
+        if (owner) revert AlreadyAttested();
         for (uint256 i = 0; i < $modules.length; i++) {
-            require(
-                Module($modules[i]).runModule(attestation, value, data),
-                "Module failed"
-            );
+            if (!Module($modules[i]).run(attestation, value, data))
+                revert ModuleFailed($modules[i]);
         }
     }
 

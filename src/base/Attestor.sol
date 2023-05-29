@@ -6,8 +6,16 @@ import "openzeppelin/interfaces/IERC165.sol";
 import {MasterRegistry} from "../MasterRegistry.sol";
 import {SchemaRegistry} from "../SchemaRegistry.sol";
 import {ModulesRegistry} from "../ModulesRegistry.sol";
-import {Module} from "../interfaces/Module.sol";
+import {Module} from "../base/Module.sol";
 import {Attestation, AttestationRequest, UpdateRequest, EIP712Signature} from "../libs/Structs.sol";
+
+error InvalidMasterRegistry();
+error InvalidSchemaRegistry();
+error NoModulesProvided();
+error ArrayLengthMismatch();
+error UnsupportedSchema();
+error InvalidSignature();
+error ModuleNotRegistered(address module);
 
 abstract contract Attestor is IERC165 {
     using ECDSA for bytes32;
@@ -23,18 +31,15 @@ abstract contract Attestor is IERC165 {
         ModulesRegistry _modulesRegistry,
         address[] memory _modules
     ) {
-        require(
-            _masterRegistry != MasterRegistry(address(0)),
-            "Invalid master registry"
-        );
-        require(
-            _schemaRegistry != SchemaRegistry(address(0)),
-            "Invalid master registry"
-        );
-        require(_modules.length > 0, "Must implement at least one module");
+        if (_masterRegistry == MasterRegistry(address(0)))
+            revert InvalidMasterRegistry();
+        if (_schemaRegistry == SchemaRegistry(address(0)))
+            revert InvalidSchemaRegistry();
+        if (_modules.length == 0) revert NoModulesProvided();
+
         for (uint256 i = 0; i < _modules.length; i++) {
             bool registered = _modulesRegistry.getModule(_modules[i]);
-            require(registered, "Module not registered");
+            if (!registered) revert ModuleNotRegistered(_modules[i]);
         }
 
         $masterRegistry = _masterRegistry;
@@ -60,10 +65,8 @@ abstract contract Attestor is IERC165 {
         AttestationRequest[] memory _attestationRequests,
         bytes[] memory data
     ) external payable {
-        require(
-            _attestationRequests.length == data.length,
-            "Must provide the same number of attestations and data"
-        );
+        if (_attestationRequests.length != data.length)
+            revert ArrayLengthMismatch();
 
         uint256 value = msg.value / _attestationRequests.length;
 
@@ -71,11 +74,10 @@ abstract contract Attestor is IERC165 {
             Attestation memory attestation = _buildAttestation(
                 _attestationRequests[i]
             );
-            require(
-                $schemaRegistry.getSchema(attestation.schemaId).attestor ==
-                    address(this),
-                "This attestation schema does not support this attestor"
-            );
+            if (
+                $schemaRegistry.getSchema(attestation.schemaId).attestor !=
+                address(this)
+            ) revert UnsupportedSchema();
 
             _beforeAttest(attestation, value, data[i]);
 
@@ -106,10 +108,8 @@ abstract contract Attestor is IERC165 {
         EIP712Signature[] memory signatures,
         bytes[] memory data
     ) external payable {
-        require(
-            _attestationRequests.length == data.length,
-            "Must provide the same number of attestations and data"
-        );
+        if (_attestationRequests.length != data.length)
+            revert ArrayLengthMismatch();
 
         uint256 value = msg.value / _attestationRequests.length;
 
@@ -119,11 +119,10 @@ abstract contract Attestor is IERC165 {
             Attestation memory attestation = _buildAttestation(
                 _attestationRequests[i]
             );
-            require(
-                $schemaRegistry.getSchema(attestation.schemaId).attestor ==
-                    address(this),
-                "This attestation schema does not support this attestor"
-            );
+            if (
+                $schemaRegistry.getSchema(attestation.schemaId).attestor !=
+                address(this)
+            ) revert UnsupportedSchema();
 
             _beforeAttest(attestation, value, data[i]);
 
@@ -148,10 +147,8 @@ abstract contract Attestor is IERC165 {
         UpdateRequest[] memory _updateRequest,
         bytes[] memory data
     ) external payable {
-        require(
-            _updateRequest.length == data.length,
-            "Must provide the same number of updates and data"
-        );
+        if (_updateRequest.length == data.length) revert ArrayLengthMismatch();
+
         for (uint256 i = 0; i < _updateRequest.length; i++) {
             _beforeUpdate(_updateRequest[i], msg.value, data[i]);
 
@@ -189,10 +186,7 @@ abstract contract Attestor is IERC165 {
             signature.r,
             signature.s
         );
-        require(
-            signer == _attestationRequest.attestor,
-            "AttestationRequest data not signed by attestor"
-        );
+        if (signer != _attestationRequest.attestor) revert InvalidSignature();
     }
 
     function _beforeAttest(
@@ -221,7 +215,7 @@ abstract contract Attestor is IERC165 {
 
     function _revoke(bytes32 /*_attestationId*/) internal virtual {
         // default setting (can be overidden by Attestor creator)
-        revert("Only attestee can revoke attestation");
+        revert();
     }
 
     function _buildAttestation(

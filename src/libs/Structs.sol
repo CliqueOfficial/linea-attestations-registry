@@ -43,5 +43,6 @@ struct Schema {
     address creator;
     address attestor;
     bool isPrivate;
+    bool onChainAttestation;
     string schema;
 }

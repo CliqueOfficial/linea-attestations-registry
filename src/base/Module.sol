@@ -4,37 +4,36 @@ pragma solidity ^0.8.20;
 import "openzeppelin/interfaces/IERC165.sol";
 import {MasterRegistry} from "../MasterRegistry.sol";
 import {SchemaRegistry} from "../SchemaRegistry.sol";
-import {ValidatorsRegistry} from "../ValidatorsRegistry.sol";
+import {AttestorsRegistry} from "../AttestorsRegistry.sol";
 import {Attestation} from "../libs/Structs.sol";
+
+error InvalidMasterRegistry();
+error InvalidSchemaRegistry();
+error InvalidAttestorRegistry();
 
 abstract contract Module is IERC165 {
     MasterRegistry public $masterRegistry;
     SchemaRegistry public $schemaRegistry;
-    ValidatorsRegistry public $validatorsRegistry;
+    AttestorsRegistry public $attestorsRegistry;
 
     constructor(
         MasterRegistry _masterRegistry,
         SchemaRegistry _schemaRegistry,
-        ValidatorsRegistry _validatorsRegistry
+        AttestorsRegistry _attestorsRegistry
     ) {
-        require(
-            _masterRegistry != MasterRegistry(address(0)),
-            "Invalid master registry"
-        );
-        require(
-            _schemaRegistry != SchemaRegistry(address(0)),
-            "Invalid master registry"
-        );
-        require(
-            _validatorsRegistry != ValidatorsRegistry(address(0)),
-            "Invalid master registry"
-        );
+        if (_masterRegistry == MasterRegistry(address(0)))
+            revert InvalidMasterRegistry();
+        if (_schemaRegistry == SchemaRegistry(address(0)))
+            revert InvalidSchemaRegistry();
+        if (_attestorsRegistry == AttestorsRegistry(address(0)))
+            revert InvalidAttestorRegistry();
+
         $masterRegistry = _masterRegistry;
         $schemaRegistry = _schemaRegistry;
-        $validatorsRegistry = _validatorsRegistry;
+        $attestorsRegistry = _attestorsRegistry;
     }
 
-    function runModule(
+    function run(
         Attestation memory attestation,
         uint256 value,
         bytes memory data

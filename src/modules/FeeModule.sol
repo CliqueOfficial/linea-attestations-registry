@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "../interfaces/Module.sol";
+import "../base/Module.sol";
+
+error CallerIsNotSchemaCreator();
+error InsufficientFee();
 
 contract FeeModule is Module {
     mapping(bytes32 schemaId => uint256 fee) public $creatorFees;
@@ -10,26 +13,22 @@ contract FeeModule is Module {
     constructor(
         MasterRegistry _masterRegistry,
         SchemaRegistry _schemaRegistry,
-        ValidatorsRegistry _validatorsRegistry
-    ) Module(_masterRegistry, _schemaRegistry, _validatorsRegistry) {}
+        AttestorsRegistry _attestorsRegistry
+    ) Module(_masterRegistry, _schemaRegistry, _attestorsRegistry) {}
 
     function setCreatorFee(bytes32 schemaId, uint256 fee) external {
-        require(
-            msg.sender == $schemaRegistry.getSchema(schemaId).creator,
-            "Must be the schema creator"
-        );
+        if (msg.sender != $schemaRegistry.getSchema(schemaId).creator)
+            revert CallerIsNotSchemaCreator();
         $creatorFees[schemaId] = fee;
     }
 
-    function runModule(
+    function run(
         Attestation memory attestation,
         uint256 value,
         bytes memory /*data*/
     ) external view override returns (bool) {
-        require(
-            value >= $creatorFees[attestation.schemaId],
-            "Insufficient fee"
-        );
+        if (value < $creatorFees[attestation.schemaId])
+            revert InsufficientFee();
         return true;
     }
 }

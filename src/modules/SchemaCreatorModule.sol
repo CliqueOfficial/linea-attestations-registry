@@ -1,16 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "../interfaces/Module.sol";
+import "../base/Module.sol";
+
+error AttestorIsNotSchemaCreator();
 
 contract SchemaCreatorModule is Module {
     constructor(
         MasterRegistry _masterRegistry,
         SchemaRegistry _schemaRegistry,
-        ValidatorsRegistry _validatorsRegistry
-    ) Module(_masterRegistry, _schemaRegistry, _validatorsRegistry) {}
+        AttestorsRegistry _attestorsRegistry
+    ) Module(_masterRegistry, _schemaRegistry, _attestorsRegistry) {}
 
-    function runModule(
+    function run(
         Attestation memory attestation,
         uint256 /*value*/,
         bytes memory /*data*/
@@ -21,9 +23,6 @@ contract SchemaCreatorModule is Module {
 
     function _schemaCreator(address attestor, bytes32 schemaId) internal view {
         address schemaCreator = $schemaRegistry.getSchema(schemaId).creator;
-        require(
-            attestor == schemaCreator,
-            "Attestor must be the schema creator"
-        );
+        if (attestor != schemaCreator) revert AttestorIsNotSchemaCreator();
     }
 }
