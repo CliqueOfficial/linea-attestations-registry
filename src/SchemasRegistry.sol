@@ -6,7 +6,7 @@ import {AttestorsRegistry} from "./AttestorsRegistry.sol";
 
 error SchemaAlreadyExists();
 
-contract SchemaRegistry {
+contract SchemasRegistry {
     AttestorsRegistry public $attestorsRegistry;
 
     mapping(bytes32 schemaId => Schema schema) public $schemas;

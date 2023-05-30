@@ -12,12 +12,12 @@ contract FeeModule is Module {
 
     constructor(
         MasterRegistry _masterRegistry,
-        SchemaRegistry _schemaRegistry,
+        SchemasRegistry _schemasRegistry,
         AttestorsRegistry _attestorsRegistry
-    ) Module(_masterRegistry, _schemaRegistry, _attestorsRegistry) {}
+    ) Module(_masterRegistry, _schemasRegistry, _attestorsRegistry) {}
 
     function setCreatorFee(bytes32 schemaId, uint256 fee) external {
-        if (msg.sender != $schemaRegistry.getSchema(schemaId).creator)
+        if (msg.sender != $schemasRegistry.getSchema(schemaId).creator)
             revert CallerIsNotSchemaCreator();
         $creatorFees[schemaId] = fee;
     }

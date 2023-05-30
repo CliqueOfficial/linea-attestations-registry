@@ -8,9 +8,9 @@ error AttestorIsNotSchemaCreator();
 contract SchemaCreatorModule is Module {
     constructor(
         MasterRegistry _masterRegistry,
-        SchemaRegistry _schemaRegistry,
+        SchemasRegistry _schemasRegistry,
         AttestorsRegistry _attestorsRegistry
-    ) Module(_masterRegistry, _schemaRegistry, _attestorsRegistry) {}
+    ) Module(_masterRegistry, _schemasRegistry, _attestorsRegistry) {}
 
     function run(
         Attestation memory attestation,
@@ -22,7 +22,7 @@ contract SchemaCreatorModule is Module {
     }
 
     function _schemaCreator(address attestor, bytes32 schemaId) internal view {
-        address schemaCreator = $schemaRegistry.getSchema(schemaId).creator;
+        address schemaCreator = $schemasRegistry.getSchema(schemaId).creator;
         if (attestor != schemaCreator) revert AttestorIsNotSchemaCreator();
     }
 }

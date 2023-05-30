@@ -3,33 +3,33 @@ pragma solidity ^0.8.20;
 
 import "openzeppelin/interfaces/IERC165.sol";
 import {MasterRegistry} from "../MasterRegistry.sol";
-import {SchemaRegistry} from "../SchemaRegistry.sol";
+import {SchemasRegistry} from "../SchemasRegistry.sol";
 import {AttestorsRegistry} from "../AttestorsRegistry.sol";
 import {Attestation} from "../libs/Structs.sol";
 
 error InvalidMasterRegistry();
-error InvalidSchemaRegistry();
-error InvalidAttestorRegistry();
+error InvalidSchemasRegistry();
+error InvalidAttestorsRegistry();
 
 abstract contract Module is IERC165 {
     MasterRegistry public $masterRegistry;
-    SchemaRegistry public $schemaRegistry;
+    SchemasRegistry public $schemasRegistry;
     AttestorsRegistry public $attestorsRegistry;
 
     constructor(
         MasterRegistry _masterRegistry,
-        SchemaRegistry _schemaRegistry,
+        SchemasRegistry _schemasRegistry,
         AttestorsRegistry _attestorsRegistry
     ) {
         if (_masterRegistry == MasterRegistry(address(0)))
             revert InvalidMasterRegistry();
-        if (_schemaRegistry == SchemaRegistry(address(0)))
-            revert InvalidSchemaRegistry();
+        if (_schemasRegistry == SchemasRegistry(address(0)))
+            revert InvalidSchemasRegistry();
         if (_attestorsRegistry == AttestorsRegistry(address(0)))
-            revert InvalidAttestorRegistry();
+            revert InvalidAttestorsRegistry();
 
         $masterRegistry = _masterRegistry;
-        $schemaRegistry = _schemaRegistry;
+        $schemasRegistry = _schemasRegistry;
         $attestorsRegistry = _attestorsRegistry;
     }
 

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.8.19 <0.9.0;
 
 import "forge-std/Test.sol";
@@ -74,27 +74,27 @@ contract MasterRegistryTest is Test {
     }
 
     /*//////////////////////////////////////////////////////////////
-                       setAttestorRegistry TESTS
+                       setAttestorsRegistry TESTS
     //////////////////////////////////////////////////////////////*/
 
-    function test_setAttestorRegistry() external {
+    function test_setAttestorsRegistry() external {
         vm.prank(owner);
-        masterRegistry.setAttestorRegistry(attestorsRegsitry);
+        masterRegistry.setAttestorsRegistry(attestorsRegsitry);
         assertEq(
             address(masterRegistry.$attestorsRegistry()),
             attestorsRegsitry
         );
     }
 
-    function test_setAttestorRegistry_Ownable() external {
+    function test_setAttestorsRegistry_Ownable() external {
         vm.expectRevert("Ownable: caller is not the owner");
-        masterRegistry.setAttestorRegistry(attestorsRegsitry);
+        masterRegistry.setAttestorsRegistry(attestorsRegsitry);
     }
 
-    function test_setAttestorRegistry_InvalidAttestorRegistry() external {
+    function test_setAttestorsRegistry_InvalidRegistryAddress() external {
         vm.startPrank(owner);
-        vm.expectRevert(MasterRegistry.InvalidAttestorRegistry.selector);
-        masterRegistry.setAttestorRegistry(address(0));
+        vm.expectRevert(MasterRegistry.InvalidRegistryAddress.selector);
+        masterRegistry.setAttestorsRegistry(address(0));
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ contract MasterRegistryTest is Test {
     function test_attest(Attestation memory attestation) external {
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
-        masterRegistry.setAttestorRegistry(address(mockAttestorsRegistry));
+        masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
         attestation.attestor = attestor_1;
 
@@ -156,7 +156,7 @@ contract MasterRegistryTest is Test {
     ) external {
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
-        masterRegistry.setAttestorRegistry(address(mockAttestorsRegistry));
+        masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
         attestation.attestor = attestor_1;
 
@@ -172,7 +172,7 @@ contract MasterRegistryTest is Test {
         vm.assume(attestations.length > 0);
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
-        masterRegistry.setAttestorRegistry(address(mockAttestorsRegistry));
+        masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
         for (uint i = 0; i < attestations.length; i++) {
             attestations[i].attestationId = bytes32(i);
@@ -236,7 +236,7 @@ contract MasterRegistryTest is Test {
     function test_attestBatch_InvalidBatchLength() external {
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
-        masterRegistry.setAttestorRegistry(address(mockAttestorsRegistry));
+        masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
         vm.expectRevert(MasterRegistry.InvalidBatchLength.selector);
         Attestation[] memory attestations = new Attestation[](0);
@@ -251,7 +251,7 @@ contract MasterRegistryTest is Test {
         vm.assume(attestations.length > 0);
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
-        masterRegistry.setAttestorRegistry(address(mockAttestorsRegistry));
+        masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
         vm.expectRevert(MasterRegistry.OnlyRegisteredAttestors.selector);
         masterRegistry.attestBatch(attestations);
@@ -268,7 +268,7 @@ contract MasterRegistryTest is Test {
     ) external {
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
-        masterRegistry.setAttestorRegistry(address(mockAttestorsRegistry));
+        masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
         UpdateRequest memory updateRequest = UpdateRequest(
             attestationId,
@@ -293,7 +293,7 @@ contract MasterRegistryTest is Test {
     ) external {
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
-        masterRegistry.setAttestorRegistry(address(mockAttestorsRegistry));
+        masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
         UpdateRequest memory updateRequest = UpdateRequest(
             attestationId,
@@ -313,7 +313,7 @@ contract MasterRegistryTest is Test {
         vm.assume(updateRequests.length > 0);
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
-        masterRegistry.setAttestorRegistry(address(mockAttestorsRegistry));
+        masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
         for (uint i = 0; i < updateRequests.length; i++) {
             updateRequests[i].attestationId = bytes32(i);
@@ -343,7 +343,7 @@ contract MasterRegistryTest is Test {
         vm.assume(updateRequests.length > 0);
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
-        masterRegistry.setAttestorRegistry(address(mockAttestorsRegistry));
+        masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
         vm.expectRevert(MasterRegistry.InvalidBatchLength.selector);
         UpdateRequest[] memory invalidUpdateRequests = new UpdateRequest[](0);
@@ -358,7 +358,7 @@ contract MasterRegistryTest is Test {
         vm.assume(updateRequests.length > 0);
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
-        masterRegistry.setAttestorRegistry(address(mockAttestorsRegistry));
+        masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
         vm.expectRevert(MasterRegistry.OnlyRegisteredAttestors.selector);
         masterRegistry.updateBatch(updateRequests);
@@ -371,7 +371,7 @@ contract MasterRegistryTest is Test {
     function test_revoke() external {
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
-        masterRegistry.setAttestorRegistry(address(mockAttestorsRegistry));
+        masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
         vm.startPrank(attestor_1);
         masterRegistry.attest(attestation_1);
@@ -408,7 +408,7 @@ contract MasterRegistryTest is Test {
     function test_revoke_OnlyAttesteeOrAttestor() external {
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
-        masterRegistry.setAttestorRegistry(address(mockAttestorsRegistry));
+        masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
         vm.startPrank(attestor_1);
         masterRegistry.attest(attestation_1);
@@ -431,7 +431,7 @@ contract MasterRegistryTest is Test {
 
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
-        masterRegistry.setAttestorRegistry(address(mockAttestorsRegistry));
+        masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
         vm.prank(attestor_1);
         masterRegistry.attestBatch(attestations);
@@ -471,7 +471,7 @@ contract MasterRegistryTest is Test {
         vm.assume(attestationIds.length > 0);
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
-        masterRegistry.setAttestorRegistry(address(mockAttestorsRegistry));
+        masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
         vm.startPrank(attestor_1);
         masterRegistry.attest(attestation_1);

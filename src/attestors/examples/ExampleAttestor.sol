@@ -9,10 +9,10 @@ contract ExampleAttestor is Attestor {
 
     constructor(
         MasterRegistry _masterRegistry,
-        SchemaRegistry _schemaRegistry,
+        SchemasRegistry _schemasRegistry,
         ModulesRegistry _modulesRegistry,
         address[] memory _modules
-    ) Attestor(_masterRegistry, _schemaRegistry, _modulesRegistry, _modules) {}
+    ) Attestor(_masterRegistry, _schemasRegistry, _modulesRegistry, _modules) {}
 
     function _beforeAttest(
         Attestation memory attestation,

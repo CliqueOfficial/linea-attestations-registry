@@ -3,15 +3,19 @@ pragma solidity ^0.8.20;
 
 import "openzeppelin/access/Ownable.sol";
 import {AttestorsRegistry} from "./AttestorsRegistry.sol";
+import {SchemasRegistry} from "./SchemasRegistry.sol";
+import {ModulesRegistry} from "./ModulesRegistry.sol";
 import {Attestation, UpdateRequest} from "./libs/Structs.sol";
 
 contract MasterRegistry is Ownable {
     error OnlyRegisteredAttestors();
     error OnlyAttesteeOrAttestor();
-    error InvalidAttestorRegistry();
+    error InvalidRegistryAddress();
     error InvalidBatchLength();
 
     AttestorsRegistry public $attestorsRegistry;
+    SchemasRegistry public $schemasRegistry;
+    ModulesRegistry public $modulesRegistry;
 
     mapping(bytes32 attestationId => Attestation attestation)
         private $attestations;
@@ -24,11 +28,21 @@ contract MasterRegistry is Ownable {
         _;
     }
 
-    function setAttestorRegistry(
+    function setAttestorsRegistry(
         address _attestorsRegistry
     ) external onlyOwner {
-        if (_attestorsRegistry == address(0)) revert InvalidAttestorRegistry();
+        if (_attestorsRegistry == address(0)) revert InvalidRegistryAddress();
         $attestorsRegistry = AttestorsRegistry(_attestorsRegistry);
+    }
+
+    function setSchemasRegistry(address _schemasRegistry) external onlyOwner {
+        if (_schemasRegistry == address(0)) revert InvalidRegistryAddress();
+        $schemasRegistry = SchemasRegistry(_schemasRegistry);
+    }
+
+    function setModulesRegistry(address _modulesRegistry) external onlyOwner {
+        if (_modulesRegistry == address(0)) revert InvalidRegistryAddress();
+        $modulesRegistry = ModulesRegistry(_modulesRegistry);
     }
 
     // Only the attestor registry can record attestations.
@@ -114,6 +128,18 @@ contract MasterRegistry is Ownable {
                 ++i;
             }
         }
+    }
+
+    function getSchemasRegistry() external view returns (address) {
+        return address($schemasRegistry);
+    }
+
+    function getModulesRegistry() external view returns (address) {
+        return address($modulesRegistry);
+    }
+
+    function getAttestorsRegistry() external view returns (address) {
+        return address($attestorsRegistry);
     }
 
     function getAttestation(

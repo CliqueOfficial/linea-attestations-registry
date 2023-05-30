@@ -2,9 +2,9 @@
 pragma solidity ^0.8.20;
 
 struct EIP712Signature {
-    uint8 v; // The recovery ID.
-    bytes32 r; // The x-coordinate of the nonce R.
-    bytes32 s; // The signature data.
+    uint8 v;
+    bytes32 r;
+    bytes32 s;
 }
 
 struct UpdateRequest {

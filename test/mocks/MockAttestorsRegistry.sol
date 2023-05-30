@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {Schema} from "../../src/libs/Structs.sol";
 
 error DoesNotImplementAttestor();
-error OnlySchemaRegistry();
+error OnlySchemasRegistry();
 error AttestorNotRegistered();
 
 contract MockAttestorsRegistry {
