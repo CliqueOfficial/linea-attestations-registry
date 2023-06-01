@@ -283,6 +283,7 @@ abstract contract Attestor is IERC165 {
             Attestation({
                 attestationId: keccak256(abi.encode(_attestationRequest)),
                 schemaId: _attestationRequest.schemaId,
+                parentId: _attestationRequest.parentId,
                 validator: address(this),
                 attestor: msg.sender,
                 attestee: _attestationRequest.attestee,

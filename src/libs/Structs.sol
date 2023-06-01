@@ -15,6 +15,7 @@ struct UpdateRequest {
 
 struct AttestationRequest {
     bytes32 schemaId;
+    bytes32 parentId;
     address attestor;
     address attestee;
     address implementation;
@@ -25,6 +26,7 @@ struct AttestationRequest {
 struct Attestation {
     bytes32 attestationId;
     bytes32 schemaId;
+    bytes32 parentId;
     address attestor;
     address attestee;
     address validator;
