@@ -41,6 +41,7 @@ contract MasterRegistryTest is Test {
         attestation_1 = Attestation({
             attestationId: bytes32("1"),
             schemaId: bytes32(0),
+            parentId: bytes32(0),
             attestor: attestor_1,
             attestee: attestee_1,
             validator: address(0),
@@ -56,6 +57,7 @@ contract MasterRegistryTest is Test {
         attestation_2 = Attestation({
             attestationId: bytes32("2"),
             schemaId: bytes32(0),
+            parentId: bytes32(0),
             attestor: attestor_2,
             attestee: attestee_2,
             validator: address(0),

@@ -1,3 +1,4 @@
 forge-std/=lib/forge-std/src/
 src/=src/
 openzeppelin/=lib/openzeppelin-contracts/contracts/
+semaphore/=lib/semaphore/packages/contracts/contracts/
