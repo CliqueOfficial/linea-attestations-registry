@@ -8,3 +8,6 @@
 [submodule "lib/semaphore"]
 	path = lib/semaphore
 	url = https://github.com/semaphore-protocol/semaphore
+[submodule "lib/zk-kit"]
+	path = lib/zk-kit
+	url = https://github.com/privacy-scaling-explorations/zk-kit
