@@ -50,9 +50,11 @@ abstract contract Attestor is IERC165 {
 
     function attest(
         AttestationRequest memory _attestationRequest,
-        bytes memory _data
+        bytes[] memory _data
     ) external payable {
         Attestation memory attestation = _buildAttestation(_attestationRequest);
+
+        _verifyBytesLength(_data);
 
         _beforeAttest(attestation, msg.value, _data);
 
@@ -63,7 +65,7 @@ abstract contract Attestor is IERC165 {
 
     function attestBatch(
         AttestationRequest[] memory _attestationRequests,
-        bytes[] memory _data
+        bytes[][] memory _data
     ) external payable {
         if (_attestationRequests.length != _data.length)
             revert ArrayLengthMismatch();
@@ -74,10 +76,8 @@ abstract contract Attestor is IERC165 {
             Attestation memory attestation = _buildAttestation(
                 _attestationRequests[i]
             );
-            if (
-                $schemasRegistry.getSchema(attestation.schemaId).attestor !=
-                address(this)
-            ) revert UnsupportedSchema();
+
+            _verifyBytesLength(_data[i]);
 
             _beforeAttest(attestation, value, _data[i]);
 
@@ -90,7 +90,7 @@ abstract contract Attestor is IERC165 {
     function delagatedAttest(
         AttestationRequest memory _attestationRequest,
         EIP712Signature memory _signature,
-        bytes memory _data
+        bytes[] memory _data
     ) external payable {
         _verifyDelegatedAttest(_attestationRequest, _signature);
 
@@ -106,7 +106,7 @@ abstract contract Attestor is IERC165 {
     function delegatedAttestBatch(
         AttestationRequest[] memory _attestationRequests,
         EIP712Signature[] memory _signatures,
-        bytes[] memory _data
+        bytes[][] memory _data
     ) external payable {
         if (_attestationRequests.length != _data.length)
             revert ArrayLengthMismatch();
@@ -119,10 +119,6 @@ abstract contract Attestor is IERC165 {
             Attestation memory attestation = _buildAttestation(
                 _attestationRequests[i]
             );
-            if (
-                $schemasRegistry.getSchema(attestation.schemaId).attestor !=
-                address(this)
-            ) revert UnsupportedSchema();
 
             _beforeAttest(attestation, value, _data[i]);
 
@@ -134,8 +130,10 @@ abstract contract Attestor is IERC165 {
 
     function update(
         UpdateRequest memory _updateRequest,
-        bytes memory _data
+        bytes[] memory _data
     ) external payable {
+        _verifyBytesLength(_data);
+
         _beforeUpdate(_updateRequest, msg.value, _data);
 
         $masterRegistry.update(_updateRequest);
@@ -146,9 +144,11 @@ abstract contract Attestor is IERC165 {
     function delegatedUpdate(
         UpdateRequest memory _updateRequest,
         EIP712Signature memory _signature,
-        bytes memory _data
+        bytes[] memory _data
     ) external payable {
         _verifyDelegatedUpdate(_updateRequest, _signature);
+
+        _verifyBytesLength(_data);
 
         _beforeUpdate(_updateRequest, msg.value, _data);
 
@@ -159,11 +159,13 @@ abstract contract Attestor is IERC165 {
 
     function updateBatch(
         UpdateRequest[] memory _updateRequest,
-        bytes[] memory _data
+        bytes[][] memory _data
     ) external payable {
         if (_updateRequest.length == _data.length) revert ArrayLengthMismatch();
 
         for (uint256 i = 0; i < _updateRequest.length; i++) {
+            _verifyBytesLength(_data[i]);
+
             _beforeUpdate(_updateRequest[i], msg.value, _data[i]);
 
             $masterRegistry.update(_updateRequest[i]);
@@ -175,12 +177,14 @@ abstract contract Attestor is IERC165 {
     function delegatedUpdateBatch(
         UpdateRequest[] memory _updateRequests,
         EIP712Signature[] memory _signatures,
-        bytes[] memory _data
+        bytes[][] memory _data
     ) external payable {
         if (_updateRequests.length == _data.length)
             revert ArrayLengthMismatch();
 
         for (uint256 i = 0; i < _updateRequests.length; i++) {
+            _verifyBytesLength(_data[i]);
+
             _verifyDelegatedUpdate(_updateRequests[i], _signatures[i]);
 
             _beforeUpdate(_updateRequests[i], msg.value, _data[i]);
@@ -247,28 +251,32 @@ abstract contract Attestor is IERC165 {
         if (signer != attestor) revert InvalidSignature();
     }
 
+    function _verifyBytesLength(bytes[] memory bytesArray) internal view {
+        if (bytesArray.length != $modules.length) revert ArrayLengthMismatch();
+    }
+
     function _beforeAttest(
         Attestation memory _attestation,
         uint256 _value,
-        bytes memory _data
+        bytes[] memory _data
     ) internal virtual;
 
     function _afterAttest(
         Attestation memory _attestation,
         uint256 _value,
-        bytes memory _data
+        bytes[] memory _data
     ) internal virtual;
 
     function _beforeUpdate(
         UpdateRequest memory _updateRequest,
         uint256 _value,
-        bytes memory _data
+        bytes[] memory _data
     ) internal virtual;
 
     function _afterUpdate(
         UpdateRequest memory _updateRequest,
         uint256 _value,
-        bytes memory _data
+        bytes[] memory _data
     ) internal virtual;
 
     function _revoke(bytes32 /*_attestationId*/) internal virtual {
@@ -279,22 +287,27 @@ abstract contract Attestor is IERC165 {
     function _buildAttestation(
         AttestationRequest memory _attestationRequest
     ) internal view returns (Attestation memory) {
-        return
-            Attestation({
-                attestationId: keccak256(abi.encode(_attestationRequest)),
-                schemaId: _attestationRequest.schemaId,
-                parentId: _attestationRequest.parentId,
-                validator: address(this),
-                attestor: msg.sender,
-                attestee: _attestationRequest.attestee,
-                implementation: _attestationRequest.implementation,
-                attestedDate: uint64(block.timestamp),
-                updatedDate: 0,
-                expirationDate: _attestationRequest.expirationDate,
-                isPrivate: false,
-                revoked: false,
-                attestationData: _attestationRequest.attestationData
-            });
+        Attestation memory attestation = Attestation({
+            attestationId: keccak256(abi.encode(_attestationRequest)),
+            schemaId: _attestationRequest.schemaId,
+            parentId: _attestationRequest.parentId,
+            validator: address(this),
+            attestor: msg.sender,
+            attestee: _attestationRequest.attestee,
+            implementation: _attestationRequest.implementation,
+            attestedDate: uint64(block.timestamp),
+            updatedDate: 0,
+            expirationDate: _attestationRequest.expirationDate,
+            isPrivate: false,
+            revoked: false,
+            attestationData: _attestationRequest.attestationData
+        });
+        if (
+            $schemasRegistry.getSchema(attestation.schemaId).attestor !=
+            address(this)
+        ) revert UnsupportedSchema();
+
+        return attestation;
     }
 
     function supportsInterface(

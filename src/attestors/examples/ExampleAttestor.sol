@@ -17,7 +17,7 @@ contract ExampleAttestor is Attestor {
     function _beforeAttest(
         Attestation memory attestation,
         uint256 value,
-        bytes memory data
+        bytes[] memory data
     ) internal override {
         bool owner = $masterRegistry.hasAttestation(
             attestation.attestee,
@@ -25,7 +25,7 @@ contract ExampleAttestor is Attestor {
         );
         if (owner) revert AlreadyAttested();
         for (uint256 i = 0; i < $modules.length; i++) {
-            if (!Module($modules[i]).run(attestation, value, data))
+            if (!Module($modules[i]).run(attestation, value, data[i]))
                 revert ModuleFailed($modules[i]);
         }
     }
@@ -33,18 +33,18 @@ contract ExampleAttestor is Attestor {
     function _afterAttest(
         Attestation memory attestation,
         uint256 value,
-        bytes memory data
+        bytes[] memory data
     ) internal override {}
 
     function _beforeUpdate(
         UpdateRequest memory _updateRequest,
         uint256 value,
-        bytes memory data
+        bytes[] memory data
     ) internal override {}
 
     function _afterUpdate(
         UpdateRequest memory _updateRequest,
         uint256 value,
-        bytes memory data
+        bytes[] memory data
     ) internal override {}
 }
