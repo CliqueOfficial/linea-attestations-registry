@@ -4,12 +4,9 @@ pragma solidity ^0.8.20;
 import {Schema} from "./libs/Structs.sol";
 import {AttestorsRegistry} from "./AttestorsRegistry.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import "./interfaces/ISchemasRegistry.sol";
 
-contract SchemasRegistry is Ownable {
-    error AttestorsRegistryNotSet();
-    error InvalidAttestorsRegistryAddress();
-    error SchemaAlreadyExists();
-
+contract SchemasRegistry is ISchemasRegistry, Ownable {
     AttestorsRegistry private $attestorsRegistry;
 
     mapping(bytes32 schemaId => Schema schema) private $schemas;
@@ -22,6 +19,8 @@ contract SchemasRegistry is Ownable {
         if (_attestorsRegistry == address(0))
             revert InvalidAttestorsRegistryAddress();
         $attestorsRegistry = AttestorsRegistry(_attestorsRegistry);
+
+        emit AttestorsRegistrySet(_attestorsRegistry);
     }
 
     function registerSchema(
@@ -48,6 +47,8 @@ contract SchemasRegistry is Ownable {
         $schemas[newSchema.schemaId] = newSchema;
 
         $attestorsRegistry.registerSchema(newSchema);
+
+        emit SchemaRegistered(newSchema);
     }
 
     function getSchema(bytes32 schemaId) external view returns (Schema memory) {

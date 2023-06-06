@@ -2,11 +2,9 @@
 pragma solidity ^0.8.20;
 
 import "./base/Module.sol";
+import "./interfaces/IModulesRegistry.sol";
 
-contract ModulesRegistry {
-    error DoesNotImplementModule();
-    error InvalidModuleAddress();
-
+contract ModulesRegistry is IModulesRegistry {
     mapping(address module => bool registered) public modules;
 
     function registerModule(Module module) external {
@@ -15,6 +13,8 @@ contract ModulesRegistry {
             revert DoesNotImplementModule();
 
         modules[address(module)] = true;
+
+        emit ModuleRegistered(address(module));
     }
 
     function getModule(address module) public view returns (bool) {

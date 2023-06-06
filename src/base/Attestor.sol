@@ -2,28 +2,27 @@
 pragma solidity ^0.8.20;
 
 import "openzeppelin/utils/cryptography/ECDSA.sol";
-import "openzeppelin/interfaces/IERC165.sol";
 import {MasterRegistry} from "../MasterRegistry.sol";
 import {SchemasRegistry} from "../SchemasRegistry.sol";
 import {ModulesRegistry} from "../ModulesRegistry.sol";
 import {Module} from "../base/Module.sol";
 import {Attestation, AttestationRequest, UpdateRequest, EIP712Signature} from "../libs/Structs.sol";
 
-error InvalidMasterRegistry();
-error InvalidSchemasRegistry();
-error NoModulesProvided();
-error ArrayLengthMismatch();
-error UnsupportedSchema();
-error InvalidSignature();
-error ModuleNotRegistered(address module);
-
-abstract contract Attestor is IERC165 {
+abstract contract Attestor {
     using ECDSA for bytes32;
 
     MasterRegistry public $masterRegistry;
     SchemasRegistry public $schemasRegistry;
     ModulesRegistry public $modulesRegistry;
     address[] public $modules;
+
+    error InvalidMasterRegistry();
+    error InvalidSchemasRegistry();
+    error NoModulesProvided();
+    error ArrayLengthMismatch();
+    error UnsupportedSchema();
+    error InvalidSignature();
+    error ModuleNotRegistered(address module);
 
     constructor(
         MasterRegistry _masterRegistry,

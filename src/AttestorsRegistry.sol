@@ -4,14 +4,9 @@ pragma solidity ^0.8.20;
 import {Schema} from "./libs/Structs.sol";
 import {Attestor} from "./base/Attestor.sol";
 import {SchemasRegistry} from "./SchemasRegistry.sol";
+import "./interfaces/IAttestorsRegistry.sol";
 
-contract AttestorsRegistry {
-    error InvalidAttestorAddress();
-    error DoesNotImplementAttestor();
-    error OnlySchemasRegistry();
-    error AttestorNotRegistered();
-    error SchemaAlreadyRegistered();
-
+contract AttestorsRegistry is IAttestorsRegistry {
     SchemasRegistry public $schemasRegistry;
 
     mapping(address attestor => bool registered) private $attestors;
@@ -29,6 +24,7 @@ contract AttestorsRegistry {
             revert DoesNotImplementAttestor();
 
         $attestors[attestor] = true;
+        emit AttestorRegistered(attestor);
     }
 
     function registerSchema(Schema memory schema) external {
@@ -39,6 +35,7 @@ contract AttestorsRegistry {
             revert SchemaAlreadyRegistered();
 
         $attestorSchemas[schema.attestor][schema.schemaId] = true;
+        emit SchemaRegistered(schema.attestor, schema.schemaId);
     }
 
     function isRegistered(

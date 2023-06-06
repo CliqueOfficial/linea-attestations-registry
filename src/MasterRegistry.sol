@@ -6,13 +6,9 @@ import {AttestorsRegistry} from "./AttestorsRegistry.sol";
 import {SchemasRegistry} from "./SchemasRegistry.sol";
 import {ModulesRegistry} from "./ModulesRegistry.sol";
 import {Attestation, UpdateRequest} from "./libs/Structs.sol";
+import "./interfaces/IMasterRegistry.sol";
 
-contract MasterRegistry is Ownable {
-    error OnlyRegisteredAttestors();
-    error OnlyAttesteeOrAttestor();
-    error InvalidRegistryAddress();
-    error InvalidBatchLength();
-
+contract MasterRegistry is IMasterRegistry, Ownable {
     AttestorsRegistry public $attestorsRegistry;
     SchemasRegistry public $schemasRegistry;
     ModulesRegistry public $modulesRegistry;
@@ -33,16 +29,22 @@ contract MasterRegistry is Ownable {
     ) external onlyOwner {
         if (_attestorsRegistry == address(0)) revert InvalidRegistryAddress();
         $attestorsRegistry = AttestorsRegistry(_attestorsRegistry);
+
+        emit AttestorsRegistrySet(_attestorsRegistry);
     }
 
     function setSchemasRegistry(address _schemasRegistry) external onlyOwner {
         if (_schemasRegistry == address(0)) revert InvalidRegistryAddress();
         $schemasRegistry = SchemasRegistry(_schemasRegistry);
+
+        emit SchemasRegistrySet(_schemasRegistry);
     }
 
     function setModulesRegistry(address _modulesRegistry) external onlyOwner {
         if (_modulesRegistry == address(0)) revert InvalidRegistryAddress();
         $modulesRegistry = ModulesRegistry(_modulesRegistry);
+
+        emit ModulesRegistrySet(_modulesRegistry);
     }
 
     // Only the attestor registry can record attestations.
@@ -51,6 +53,8 @@ contract MasterRegistry is Ownable {
         $attestationIds[_attestation.attestee][_attestation.schemaId].push(
             _attestation.attestationId
         );
+
+        emit AttestationRecorded(_attestation);
     }
 
     function attestBatch(
@@ -68,6 +72,7 @@ contract MasterRegistry is Ownable {
                 ++i;
             }
         }
+        emit BatchAttestationRecorded(_attestations);
     }
 
     function update(UpdateRequest memory _updateRequest) external onlyAttestor {
@@ -78,6 +83,8 @@ contract MasterRegistry is Ownable {
         attestation.expirationDate = _updateRequest.expirationDate;
         attestation.attestationData = _updateRequest.attestationData;
         $attestations[_updateRequest.attestationId] = attestation;
+
+        emit AttestationUpdated(_updateRequest);
     }
 
     function updateBatch(
@@ -99,6 +106,7 @@ contract MasterRegistry is Ownable {
                 ++i;
             }
         }
+        emit BatchAttestationUpdated(_updateRequests);
     }
 
     function revoke(bytes32 attestationId) external {
@@ -109,6 +117,8 @@ contract MasterRegistry is Ownable {
 
         $attestations[attestationId].revoked = true;
         $attestations[attestationId].attestationData = "";
+
+        emit AttestationRevoked(attestationId);
     }
 
     function revokeBatch(bytes32[] memory attestationIds) external {
@@ -128,6 +138,7 @@ contract MasterRegistry is Ownable {
                 ++i;
             }
         }
+        emit BatchAttestationRevoked(attestationIds);
     }
 
     function getSchemasRegistry() external view returns (address) {
