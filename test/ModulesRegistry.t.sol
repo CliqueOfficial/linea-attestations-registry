@@ -39,13 +39,13 @@ contract ModulesRegistryTest is Test {
     }
 
     function test_registerModule() external {
-        modulesRegistry.registerModule(mockModule);
-        assertTrue(modulesRegistry.getModule(address(mockModule)));
+        modulesRegistry.registerModule(address(mockModule));
+        assertTrue(modulesRegistry.isRegistered(address(mockModule)));
     }
 
     function test_registerModule_InvalidModuleAddress() external {
         vm.expectRevert(IModulesRegistry.InvalidModuleAddress.selector);
-        modulesRegistry.registerModule(Module(address(0)));
+        modulesRegistry.registerModule(address(0));
     }
 
     function test_registerModule_DoesNotImplementModule(
@@ -53,6 +53,6 @@ contract ModulesRegistryTest is Test {
     ) external {
         vm.assume(address(module) != address(0));
         vm.expectRevert();
-        modulesRegistry.registerModule(module);
+        modulesRegistry.registerModule(address(module));
     }
 }

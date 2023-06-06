@@ -7,8 +7,8 @@ import "./interfaces/IModulesRegistry.sol";
 contract ModulesRegistry is IModulesRegistry {
     mapping(address module => bool registered) public modules;
 
-    function registerModule(Module module) external {
-        if (address(module) == address(0)) revert InvalidModuleAddress();
+    function registerModule(address module) external {
+        if (module == address(0)) revert InvalidModuleAddress();
         if (!Module(module).supportsInterface(type(Module).interfaceId))
             revert DoesNotImplementModule();
 
@@ -17,7 +17,7 @@ contract ModulesRegistry is IModulesRegistry {
         emit ModuleRegistered(address(module));
     }
 
-    function getModule(address module) public view returns (bool) {
+    function isRegistered(address module) public view returns (bool) {
         return modules[module];
     }
 }

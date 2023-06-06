@@ -38,7 +38,7 @@ abstract contract Attestor is IERC165 {
         if (_modules.length == 0) revert NoModulesProvided();
 
         for (uint256 i = 0; i < _modules.length; i++) {
-            bool registered = _modulesRegistry.getModule(_modules[i]);
+            bool registered = _modulesRegistry.isRegistered(_modules[i]);
             if (!registered) revert ModuleNotRegistered(_modules[i]);
         }
 
