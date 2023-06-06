@@ -3,6 +3,24 @@
 The Linea Attestation Layer is a protocol on which attestors can attest data to attestees.
 Furthermore the modular design allows for builders to build components on top of the protocol to extend its use.
 
+## Getting Started
+
+```bash
+    forge install
+```
+
+```bash
+    forge build
+```
+
+```bash
+    forge test
+```
+
+```bash
+    forge coverage
+```
+
 ## Design
 
 ![Linea Attestation Layer Image](./docs/lal.png)

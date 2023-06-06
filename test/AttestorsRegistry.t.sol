@@ -39,7 +39,7 @@ contract AttestorsRegistryTest is Test {
             attestorsRegistry
         );
 
-        modulesRegistry.registerModule(mockModule);
+        modulesRegistry.registerModule(address(mockModule));
         address[] memory modules = new address[](1);
         modules[0] = address(mockModule);
         mockAttestor = new MockAttestor(
