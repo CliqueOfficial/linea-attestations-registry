@@ -61,7 +61,7 @@ contract AttestorsRegistryTest is Test {
     }
 
     function test_registerAttestor_InvalidAttestorAddress() external {
-        vm.expectRevert(AttestorsRegistry.InvalidAttestorAddress.selector);
+        vm.expectRevert(IAttestorsRegistry.InvalidAttestorAddress.selector);
         attestorsRegistry.registerAttestor(address(0));
     }
 
@@ -93,7 +93,7 @@ contract AttestorsRegistryTest is Test {
     function test_registerSchema_OnlySchemasRegistry(
         Schema memory schema
     ) external {
-        vm.expectRevert(AttestorsRegistry.OnlySchemasRegistry.selector);
+        vm.expectRevert(IAttestorsRegistry.OnlySchemasRegistry.selector);
         attestorsRegistry.registerSchema(schema);
     }
 
@@ -101,7 +101,7 @@ contract AttestorsRegistryTest is Test {
         Schema memory schema
     ) external {
         vm.prank(address(schemasRegistry));
-        vm.expectRevert(AttestorsRegistry.AttestorNotRegistered.selector);
+        vm.expectRevert(IAttestorsRegistry.AttestorNotRegistered.selector);
         attestorsRegistry.registerSchema(schema);
     }
 
@@ -112,7 +112,7 @@ contract AttestorsRegistryTest is Test {
         attestorsRegistry.registerAttestor(address(mockAttestor));
         vm.startPrank(address(schemasRegistry));
         attestorsRegistry.registerSchema(schema);
-        vm.expectRevert(AttestorsRegistry.SchemaAlreadyRegistered.selector);
+        vm.expectRevert(IAttestorsRegistry.SchemaAlreadyRegistered.selector);
         attestorsRegistry.registerSchema(schema);
         vm.stopPrank();
     }

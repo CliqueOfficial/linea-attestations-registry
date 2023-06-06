@@ -8,7 +8,7 @@ import {StdCheats} from "forge-std/StdCheats.sol";
 import {MasterRegistry, Attestation, UpdateRequest} from "../src/MasterRegistry.sol";
 import {MockAttestorsRegistry} from "./mocks/MockAttestorsRegistry.sol";
 import {Module} from "../src/base/Module.sol";
-import {SchemasRegistry} from "../src/SchemasRegistry.sol";
+import "../src/SchemasRegistry.sol";
 import {MockAttestor} from "./mocks/MockAttestor.sol";
 import {MockModule} from "./mocks/MockModule.sol";
 import {AttestorsRegistry} from "../src/AttestorsRegistry.sol";
@@ -62,7 +62,7 @@ contract SchemasRegistryTest is Test {
     {
         vm.prank(owner);
         vm.expectRevert(
-            SchemasRegistry.InvalidAttestorsRegistryAddress.selector
+            ISchemasRegistry.InvalidAttestorsRegistryAddress.selector
         );
         schemasRegistry.setAttestorsRegistry((address(0)));
     }
@@ -85,7 +85,7 @@ contract SchemasRegistryTest is Test {
         string memory schema,
         address attestor
     ) external {
-        vm.expectRevert(SchemasRegistry.AttestorsRegistryNotSet.selector);
+        vm.expectRevert(ISchemasRegistry.AttestorsRegistryNotSet.selector);
         schemasRegistry.registerSchema(attestor, schema, true);
     }
 
@@ -97,7 +97,7 @@ contract SchemasRegistryTest is Test {
         schemasRegistry.setAttestorsRegistry((address(mockAttestorsRegistry)));
 
         schemasRegistry.registerSchema(attestor, schema, true);
-        vm.expectRevert(SchemasRegistry.SchemaAlreadyExists.selector);
+        vm.expectRevert(ISchemasRegistry.SchemaAlreadyExists.selector);
         schemasRegistry.registerSchema(attestor, schema, true);
     }
 }

@@ -7,7 +7,7 @@ import {StdCheats} from "forge-std/StdCheats.sol";
 
 import {MasterRegistry, Attestation, UpdateRequest} from "../src/MasterRegistry.sol";
 import {MockAttestorsRegistry} from "./mocks/MockAttestorsRegistry.sol";
-import {ModulesRegistry} from "../src/ModulesRegistry.sol";
+import "../src/ModulesRegistry.sol";
 import {MockModule} from "./mocks/MockModule.sol";
 import {SchemasRegistry} from "../src/SchemasRegistry.sol";
 import {AttestorsRegistry} from "../src/AttestorsRegistry.sol";
@@ -44,7 +44,7 @@ contract ModulesRegistryTest is Test {
     }
 
     function test_registerModule_InvalidModuleAddress() external {
-        vm.expectRevert(ModulesRegistry.InvalidModuleAddress.selector);
+        vm.expectRevert(IModulesRegistry.InvalidModuleAddress.selector);
         modulesRegistry.registerModule(Module(address(0)));
     }
 

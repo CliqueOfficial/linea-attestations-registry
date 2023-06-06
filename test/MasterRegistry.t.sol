@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
 import {StdCheats} from "forge-std/StdCheats.sol";
 
-import {MasterRegistry, Attestation, UpdateRequest} from "../src/MasterRegistry.sol";
+import "../src/MasterRegistry.sol";
 import {MockAttestorsRegistry} from "./mocks/MockAttestorsRegistry.sol";
 
 contract MasterRegistryTest is Test {
@@ -95,7 +95,7 @@ contract MasterRegistryTest is Test {
 
     function test_setAttestorsRegistry_InvalidRegistryAddress() external {
         vm.startPrank(owner);
-        vm.expectRevert(MasterRegistry.InvalidRegistryAddress.selector);
+        vm.expectRevert(IMasterRegistry.InvalidRegistryAddress.selector);
         masterRegistry.setAttestorsRegistry(address(0));
     }
 
@@ -162,7 +162,7 @@ contract MasterRegistryTest is Test {
 
         attestation.attestor = attestor_1;
 
-        vm.expectRevert(MasterRegistry.OnlyRegisteredAttestors.selector);
+        vm.expectRevert(IMasterRegistry.OnlyRegisteredAttestors.selector);
         masterRegistry.attest(attestation);
     }
 
@@ -240,7 +240,7 @@ contract MasterRegistryTest is Test {
         vm.prank(owner);
         masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
-        vm.expectRevert(MasterRegistry.InvalidBatchLength.selector);
+        vm.expectRevert(IMasterRegistry.InvalidBatchLength.selector);
         Attestation[] memory attestations = new Attestation[](0);
 
         vm.prank(attestor_1);
@@ -255,7 +255,7 @@ contract MasterRegistryTest is Test {
         vm.prank(owner);
         masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
-        vm.expectRevert(MasterRegistry.OnlyRegisteredAttestors.selector);
+        vm.expectRevert(IMasterRegistry.OnlyRegisteredAttestors.selector);
         masterRegistry.attestBatch(attestations);
     }
 
@@ -303,7 +303,7 @@ contract MasterRegistryTest is Test {
             attestationData
         );
 
-        vm.expectRevert(MasterRegistry.OnlyRegisteredAttestors.selector);
+        vm.expectRevert(IMasterRegistry.OnlyRegisteredAttestors.selector);
         masterRegistry.update(updateRequest);
     }
 
@@ -347,7 +347,7 @@ contract MasterRegistryTest is Test {
         vm.prank(owner);
         masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
-        vm.expectRevert(MasterRegistry.InvalidBatchLength.selector);
+        vm.expectRevert(IMasterRegistry.InvalidBatchLength.selector);
         UpdateRequest[] memory invalidUpdateRequests = new UpdateRequest[](0);
 
         vm.prank(attestor_1);
@@ -362,7 +362,7 @@ contract MasterRegistryTest is Test {
         vm.prank(owner);
         masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
-        vm.expectRevert(MasterRegistry.OnlyRegisteredAttestors.selector);
+        vm.expectRevert(IMasterRegistry.OnlyRegisteredAttestors.selector);
         masterRegistry.updateBatch(updateRequests);
     }
 
@@ -416,7 +416,7 @@ contract MasterRegistryTest is Test {
         masterRegistry.attest(attestation_1);
         masterRegistry.attest(attestation_2);
 
-        vm.expectRevert(MasterRegistry.OnlyAttesteeOrAttestor.selector);
+        vm.expectRevert(IMasterRegistry.OnlyAttesteeOrAttestor.selector);
         masterRegistry.revoke(attestation_2.attestationId);
     }
 
@@ -463,7 +463,7 @@ contract MasterRegistryTest is Test {
     function test_revokeBatch_InvalidBatchLength() external {
         bytes32[] memory invalidAttestationIds = new bytes32[](0);
 
-        vm.expectRevert(MasterRegistry.InvalidBatchLength.selector);
+        vm.expectRevert(IMasterRegistry.InvalidBatchLength.selector);
         masterRegistry.revokeBatch(invalidAttestationIds);
     }
 
@@ -479,7 +479,7 @@ contract MasterRegistryTest is Test {
         masterRegistry.attest(attestation_1);
         masterRegistry.attest(attestation_2);
 
-        vm.expectRevert(MasterRegistry.OnlyAttesteeOrAttestor.selector);
+        vm.expectRevert(IMasterRegistry.OnlyAttesteeOrAttestor.selector);
         masterRegistry.revokeBatch(attestationIds);
     }
 }

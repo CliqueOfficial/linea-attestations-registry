@@ -6,9 +6,10 @@ import {MasterRegistry} from "../MasterRegistry.sol";
 import {SchemasRegistry} from "../SchemasRegistry.sol";
 import {ModulesRegistry} from "../ModulesRegistry.sol";
 import {Module} from "../base/Module.sol";
+import {IERC165} from "openzeppelin/interfaces/IERC165.sol";
 import {Attestation, AttestationRequest, UpdateRequest, EIP712Signature} from "../libs/Structs.sol";
 
-abstract contract Attestor {
+abstract contract Attestor is IERC165 {
     using ECDSA for bytes32;
 
     MasterRegistry public $masterRegistry;
