@@ -3,21 +3,35 @@ pragma solidity ^0.8.20;
 
 import {Schema} from "./libs/Structs.sol";
 import {AttestorsRegistry} from "./AttestorsRegistry.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-error SchemaAlreadyExists();
+contract SchemasRegistry is Ownable {
+    error AttestorsRegistryNotSet();
+    error InvalidAttestorsRegistryAddress();
+    error SchemaAlreadyExists();
 
-contract SchemasRegistry {
-    AttestorsRegistry public $attestorsRegistry;
+    AttestorsRegistry private $attestorsRegistry;
 
-    mapping(bytes32 schemaId => Schema schema) public $schemas;
+    mapping(bytes32 schemaId => Schema schema) private $schemas;
 
     uint256 public schemaCount;
+
+    function setAttestorsRegistry(
+        address _attestorsRegistry
+    ) external onlyOwner {
+        if (_attestorsRegistry == address(0))
+            revert InvalidAttestorsRegistryAddress();
+        $attestorsRegistry = AttestorsRegistry(_attestorsRegistry);
+    }
 
     function registerSchema(
         address attestor,
         string memory schema,
         bool onChain
     ) external {
+        if (address($attestorsRegistry) == address(0))
+            revert AttestorsRegistryNotSet();
+
         Schema memory newSchema = Schema({
             schemaId: keccak256(abi.encodePacked(msg.sender, attestor, schema)),
             schemaNumber: ++schemaCount,
@@ -33,12 +47,14 @@ contract SchemasRegistry {
 
         $schemas[newSchema.schemaId] = newSchema;
 
-        AttestorsRegistry(address($attestorsRegistry)).registerSchema(
-            newSchema
-        );
+        $attestorsRegistry.registerSchema(newSchema);
     }
 
     function getSchema(bytes32 schemaId) external view returns (Schema memory) {
         return $schemas[schemaId];
+    }
+
+    function getAttestorsRegistry() public view returns (address) {
+        return address($attestorsRegistry);
     }
 }

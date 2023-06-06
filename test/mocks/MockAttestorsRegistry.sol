@@ -19,4 +19,10 @@ contract MockAttestorsRegistry {
     function registerSchema(Schema memory schema) external {
         $attestorschemas[schema.attestor][schema.schemaId] = true;
     }
+
+    function isRegistered(
+        address attestor
+    ) public view returns (bool registered) {
+        return $attestors[attestor];
+    }
 }

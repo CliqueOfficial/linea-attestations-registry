@@ -23,7 +23,7 @@ contract MasterRegistry is Ownable {
         private $attestationIds;
 
     modifier onlyAttestor() {
-        if (!$attestorsRegistry.$attestors(msg.sender))
+        if (!$attestorsRegistry.isRegistered(msg.sender))
             revert OnlyRegisteredAttestors();
         _;
     }

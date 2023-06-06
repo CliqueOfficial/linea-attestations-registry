@@ -3,12 +3,14 @@ pragma solidity ^0.8.20;
 
 import "./base/Module.sol";
 
-error DoesNotImplementModule();
-
 contract ModulesRegistry {
+    error DoesNotImplementModule();
+    error InvalidModuleAddress();
+
     mapping(address module => bool registered) public modules;
 
     function registerModule(Module module) external {
+        if (address(module) == address(0)) revert InvalidModuleAddress();
         if (!Module(module).supportsInterface(type(Module).interfaceId))
             revert DoesNotImplementModule();
 
