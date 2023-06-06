@@ -1,7 +1,0 @@
-forge-std/=lib/forge-std/src/
-src/=src/
-openzeppelin/=lib/openzeppelin-contracts/contracts/
-@openzeppelin/=lib/openzeppelin-contracts/
-semaphore/=lib/semaphore/packages/contracts/contracts/
-poseidon-solidity/=lib/poseidon-solidity/contracts/
-@zk-kit/=lib/zk-kit/packages/
