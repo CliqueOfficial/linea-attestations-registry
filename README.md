@@ -1,5 +1,8 @@
 # LINEA ATTESTATION LAYER
 
+DISCLAIMER:
+Please be advised that this repository is under development and has not undergone comprehensive testing. It may contain bugs or unfinished features. As such, it is not suitable for production use.
+
 This repository serves as a blueprint for the potential structure of the Linea Attestation Registry. Its modular design encourages contribution and development of various features and components. Moreover, it ensures seamless cross-compatibility with a wide array of protocols and standards, including but not limited to, EAS, SBTs, and zkBadges.
 
 A set of very basic example Modules can be found in the modules directory.
