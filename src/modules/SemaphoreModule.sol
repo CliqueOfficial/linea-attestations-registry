@@ -16,10 +16,10 @@ contract SemaphoreModule is Semaphore, Module {
     {}
 
     function run(
-        Attestation memory /*attestation*/,
+        Attestation memory attestation,
         uint256 /*value*/,
         bytes memory data
-    ) external override returns (bool) {
+    ) external override returns (Attestation memory, bytes memory) {
         (
             uint256 groupId,
             uint256 merkleTreeRoot,
@@ -41,6 +41,6 @@ contract SemaphoreModule is Semaphore, Module {
             proof
         );
 
-        return true;
+        return (attestation, bytes(""));
     }
 }

@@ -26,9 +26,9 @@ contract FeeModule is Module {
         Attestation memory attestation,
         uint256 value,
         bytes memory /*data*/
-    ) external view override returns (bool) {
+    ) external view override returns (Attestation memory, bytes memory) {
         if (value < $creatorFees[attestation.schemaId])
             revert InsufficientFee();
-        return true;
+        return (attestation, bytes(""));
     }
 }

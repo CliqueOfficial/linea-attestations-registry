@@ -79,7 +79,7 @@ abstract contract Attestor is IERC165 {
 
             _verifyBytesLength(_data[i]);
 
-            _beforeAttest(attestation, value, _data[i]);
+            attestation = _beforeAttest(attestation, value, _data[i]);
 
             $masterRegistry.attest(attestation);
 
@@ -259,7 +259,7 @@ abstract contract Attestor is IERC165 {
         Attestation memory _attestation,
         uint256 _value,
         bytes[] memory _data
-    ) internal virtual;
+    ) internal virtual returns (Attestation memory);
 
     function _afterAttest(
         Attestation memory _attestation,
@@ -291,10 +291,9 @@ abstract contract Attestor is IERC165 {
             attestationId: keccak256(abi.encode(_attestationRequest)),
             schemaId: _attestationRequest.schemaId,
             parentId: _attestationRequest.parentId,
-            validator: address(this),
-            attestor: msg.sender,
+            attestor: address(this),
+            attester: msg.sender,
             attestee: _attestationRequest.attestee,
-            implementation: _attestationRequest.implementation,
             attestedDate: uint64(block.timestamp),
             updatedDate: 0,
             expirationDate: _attestationRequest.expirationDate,

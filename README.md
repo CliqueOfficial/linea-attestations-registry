@@ -1,7 +1,15 @@
 # LINEA ATTESTATION LAYER
 
-The Linea Attestation Layer is a protocol on which attestors can attest data to attestees.
-Furthermore the modular design allows for builders to build components on top of the protocol to extend its use.
+This repository serves as a blueprint for the potential structure of the Linea Attestation Registry. Its modular design encourages contribution and development of various features and components. Moreover, it ensures seamless cross-compatibility with a wide array of protocols and standards, including but not limited to, EAS, SBTs, and zkBadges.
+
+A set of very basic example Modules can be found in the modules directory.
+
+Showcasing an example of:
+
+- paid attestations
+- Privacy preserving attestations
+- EAS compatible attestations
+- Constrained attestations
 
 ## Getting Started
 

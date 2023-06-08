@@ -37,7 +37,7 @@ abstract contract Module is IERC165 {
         Attestation memory attestation,
         uint256 value,
         bytes memory data
-    ) external virtual returns (bool);
+    ) external virtual returns (Attestation memory, bytes memory);
 
     function supportsInterface(
         bytes4 interfaceId

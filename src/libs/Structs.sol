@@ -18,6 +18,7 @@ struct AttestationRequest {
     bytes32 parentId;
     address attestor;
     address attestee;
+    bytes32 implementationId;
     address implementation;
     uint64 expirationDate;
     bytes attestationData;
@@ -27,10 +28,9 @@ struct Attestation {
     bytes32 attestationId;
     bytes32 schemaId;
     bytes32 parentId;
-    address attestor;
+    address attester;
     address attestee;
-    address validator;
-    address implementation;
+    address attestor;
     uint64 attestedDate;
     uint64 updatedDate;
     uint64 expirationDate;

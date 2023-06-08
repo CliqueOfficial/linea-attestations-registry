@@ -15,19 +15,25 @@ contract ExampleAttestor is Attestor {
     ) Attestor(_masterRegistry, _schemasRegistry, _modulesRegistry, _modules) {}
 
     function _beforeAttest(
-        Attestation memory attestation,
-        uint256 value,
-        bytes[] memory data
-    ) internal override {
+        Attestation memory _attestation,
+        uint256 _value,
+        bytes[] memory _data
+    ) internal override returns (Attestation memory) {
         bool owner = $masterRegistry.hasAttestation(
-            attestation.attestee,
-            attestation.schemaId
+            _attestation.attestee,
+            _attestation.schemaId
         );
         if (owner) revert AlreadyAttested();
+        Attestation memory finalAttestation;
         for (uint256 i = 0; i < $modules.length; i++) {
-            if (!Module($modules[i]).run(attestation, value, data[i]))
-                revert ModuleFailed($modules[i]);
+            (Attestation memory attestation, ) = Module($modules[i]).run(
+                _attestation,
+                _value,
+                _data[i]
+            );
+            finalAttestation = attestation;
         }
+        return finalAttestation;
     }
 
     function _afterAttest(

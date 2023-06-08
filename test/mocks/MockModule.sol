@@ -11,10 +11,10 @@ contract MockModule is Module {
     ) Module(_masterRegistry, _schemasRegistry, _attestorsRegistry) {}
 
     function run(
-        Attestation memory /*attestation*/,
+        Attestation memory attestation,
         uint256 /*value*/,
         bytes memory /*data*/
-    ) external view override returns (bool) {
-        return true;
+    ) external view override returns (Attestation memory, bytes memory) {
+        return (attestation, bytes(""));
     }
 }

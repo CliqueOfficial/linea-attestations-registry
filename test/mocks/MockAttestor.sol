@@ -20,7 +20,7 @@ contract MockAttestor is Attestor {
         Attestation memory _attestation,
         uint256 _value,
         bytes[] memory _data
-    ) internal override {}
+    ) internal override returns (Attestation memory) {}
 
     function _afterAttest(
         Attestation memory _attestation,

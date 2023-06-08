@@ -42,10 +42,9 @@ contract MasterRegistryTest is Test {
             attestationId: bytes32("1"),
             schemaId: bytes32(0),
             parentId: bytes32(0),
-            attestor: attestor_1,
+            attester: owner,
             attestee: attestee_1,
-            validator: address(0),
-            implementation: address(0),
+            attestor: attestor_1,
             attestedDate: 0,
             updatedDate: 0,
             expirationDate: 0,
@@ -58,10 +57,9 @@ contract MasterRegistryTest is Test {
             attestationId: bytes32("2"),
             schemaId: bytes32(0),
             parentId: bytes32(0),
-            attestor: attestor_2,
+            attester: owner,
             attestee: attestee_2,
-            validator: address(0),
-            implementation: address(0),
+            attestor: attestor_1,
             attestedDate: 0,
             updatedDate: 0,
             expirationDate: 0,
@@ -121,13 +119,9 @@ contract MasterRegistryTest is Test {
             attestation.attestationId
         );
         assertEq(attestationFromRegistry.schemaId, attestation.schemaId);
-        assertEq(attestationFromRegistry.attestor, attestor_1);
+        assertEq(attestationFromRegistry.attester, attestation.attester);
         assertEq(attestationFromRegistry.attestee, attestation.attestee);
-        assertEq(attestationFromRegistry.validator, attestation.validator);
-        assertEq(
-            attestationFromRegistry.implementation,
-            attestation.implementation
-        );
+        assertEq(attestationFromRegistry.attestor, attestor_1);
         assertEq(
             attestationFromRegistry.attestedDate,
             attestation.attestedDate
@@ -196,20 +190,16 @@ contract MasterRegistryTest is Test {
                 attestations[i].schemaId
             );
             assertEq(
-                attestationFromRegistry.attestor,
-                attestations[i].attestor
+                attestationFromRegistry.attester,
+                attestations[i].attester
             );
             assertEq(
                 attestationFromRegistry.attestee,
                 attestations[i].attestee
             );
             assertEq(
-                attestationFromRegistry.validator,
-                attestations[i].validator
-            );
-            assertEq(
-                attestationFromRegistry.implementation,
-                attestations[i].implementation
+                attestationFromRegistry.attestor,
+                attestations[i].attestor
             );
             assertEq(
                 attestationFromRegistry.attestedDate,
@@ -415,7 +405,9 @@ contract MasterRegistryTest is Test {
         vm.startPrank(attestor_1);
         masterRegistry.attest(attestation_1);
         masterRegistry.attest(attestation_2);
+        vm.stopPrank();
 
+        vm.prank(attestor_2);
         vm.expectRevert(IMasterRegistry.OnlyAttesteeOrAttestor.selector);
         masterRegistry.revoke(attestation_2.attestationId);
     }
