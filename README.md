@@ -35,6 +35,7 @@ Showcasing an example of:
 ## Design
 
 ![Linea Attestation Layer Image](./docs/lal.png)
+![Linea Attestation Layer Image](./docs/diagram-2.png)
 
 ### Master Registry
 
