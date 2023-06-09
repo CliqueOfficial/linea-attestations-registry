@@ -37,6 +37,12 @@ Showcasing an example of:
 ![Linea Attestation Layer Image](./docs/lal.png)
 ![Linea Attestation Layer Image](./docs/diagram-2.png)
 
+Following this architecture, any user can:
+1. create or chose a schema from the schema registry.
+1. create or chose one or many modules from the modules registry and combine them within an attestor. 
+3. register the attestor to the attestors registry.
+4. anyone can now attest attestations through the attestor with logic validation from the modules.
+
 ### Master Registry
 
 This registry serves as a repository for all attestation instances. Its primary role is to:
