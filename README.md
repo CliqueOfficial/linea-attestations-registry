@@ -1,4 +1,4 @@
-# LINEA ATTESTATION LAYER
+# LINEA ATTESTATIONS REGISTRY
 
 DISCLAIMER:
 Please be advised that this repository is under development and has not undergone comprehensive testing. It may contain bugs or unfinished features. As such, it is not suitable for production use.
