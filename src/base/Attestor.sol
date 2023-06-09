@@ -48,6 +48,7 @@ abstract contract Attestor is IERC165 {
         $modules = _modules;
     }
 
+    // Attests attestations to the master registry.
     function attest(
         AttestationRequest memory _attestationRequest,
         bytes[] memory _data
@@ -63,6 +64,7 @@ abstract contract Attestor is IERC165 {
         _afterAttest(attestation, msg.value, _data);
     }
 
+    // Attests a batch of attestations to the master registry.
     function attestBatch(
         AttestationRequest[] memory _attestationRequests,
         bytes[][] memory _data
@@ -87,6 +89,7 @@ abstract contract Attestor is IERC165 {
         }
     }
 
+    // Delegated attesting to the master registry through signature verification.
     function delagatedAttest(
         AttestationRequest memory _attestationRequest,
         EIP712Signature memory _signature,
@@ -103,6 +106,7 @@ abstract contract Attestor is IERC165 {
         _afterAttest(attestation, msg.value, _data);
     }
 
+    // Delegated batch attesting to the master registry through signature verifications.
     function delegatedAttestBatch(
         AttestationRequest[] memory _attestationRequests,
         EIP712Signature[] memory _signatures,
@@ -128,6 +132,7 @@ abstract contract Attestor is IERC165 {
         }
     }
 
+    // Updates an attestation in the master registry.
     function update(
         UpdateRequest memory _updateRequest,
         bytes[] memory _data
@@ -141,6 +146,7 @@ abstract contract Attestor is IERC165 {
         _afterUpdate(_updateRequest, msg.value, _data);
     }
 
+    // Delegated updating of an attestation through signature verification.
     function delegatedUpdate(
         UpdateRequest memory _updateRequest,
         EIP712Signature memory _signature,
@@ -157,6 +163,7 @@ abstract contract Attestor is IERC165 {
         _afterUpdate(_updateRequest, msg.value, _data);
     }
 
+    // Updates a batch of attestations in the master registry.
     function updateBatch(
         UpdateRequest[] memory _updateRequest,
         bytes[][] memory _data
@@ -174,6 +181,7 @@ abstract contract Attestor is IERC165 {
         }
     }
 
+    // Delegated batch updating of attestations through signature verification.
     function delegatedUpdateBatch(
         UpdateRequest[] memory _updateRequests,
         EIP712Signature[] memory _signatures,
@@ -195,6 +203,7 @@ abstract contract Attestor is IERC165 {
         }
     }
 
+    // Revokes an attestation in the master registry.
     function revoke(bytes32 _attestationId) external {
         _revoke(_attestationId);
     }

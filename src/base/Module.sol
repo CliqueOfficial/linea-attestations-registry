@@ -33,6 +33,8 @@ abstract contract Module is IERC165 {
         $attestorsRegistry = _attestorsRegistry;
     }
 
+    // This function should contain the logic of the module.
+    // Business logic for the module should be implemented here.
     function run(
         Attestation memory attestation,
         uint256 value,

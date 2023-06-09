@@ -6,6 +6,7 @@ import "../base/Module.sol";
 error CallerIsNotSchemaCreator();
 error InsufficientFee();
 
+// A basic implementation of a module which attached a fee to an attestation.
 contract FeeModule is Module {
     mapping(bytes32 schemaId => uint256 fee) public $creatorFees;
     uint256 public $baseFee = 0;

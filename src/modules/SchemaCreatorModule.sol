@@ -5,6 +5,7 @@ import "../base/Module.sol";
 
 error AttesterIsNotSchemaCreator();
 
+// A basic implementation of a module which checks that the attester is the schema creator.
 contract SchemaCreatorModule is Module {
     constructor(
         MasterRegistry _masterRegistry,

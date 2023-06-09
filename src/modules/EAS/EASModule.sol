@@ -6,6 +6,7 @@ import {IEAS, AttestationRequest, AttestationRequestData} from "./IEAS.sol";
 import {ISchemaRegistry, ISchemaResolver} from "./ISchemaRegistry.sol";
 import {Schema} from "../../libs/Structs.sol";
 
+// A basic implementation of a module for compatibility with the EAS protocol.
 contract EASModule is Module {
     IEAS $iEAS;
     ISchemaRegistry $iSchemaRegistry;

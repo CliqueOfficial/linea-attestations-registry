@@ -4,6 +4,8 @@ pragma solidity ^0.8.20;
 import "../base/Module.sol";
 import "semaphore/Semaphore.sol";
 
+// A basic implementation of a module implementing the Semaphore protocol.
+// Allowing privacy preserving attestations.
 contract SemaphoreModule is Semaphore, Module {
     constructor(
         ISemaphoreVerifier _verifier,

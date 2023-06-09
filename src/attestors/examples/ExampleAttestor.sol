@@ -14,6 +14,9 @@ contract ExampleAttestor is Attestor {
         address[] memory _modules
     ) Attestor(_masterRegistry, _schemasRegistry, _modulesRegistry, _modules) {}
 
+    // This hook is called before attesting to the master registry
+    // in the "attest" function.
+    // Every module is run before the attestation can be attested.
     function _beforeAttest(
         Attestation memory _attestation,
         uint256 _value,
@@ -36,18 +39,21 @@ contract ExampleAttestor is Attestor {
         return finalAttestation;
     }
 
+    // Hook called after attesting to the master registry.
     function _afterAttest(
         Attestation memory attestation,
         uint256 value,
         bytes[] memory data
     ) internal override {}
 
+    // Hook called before updating an attestation.
     function _beforeUpdate(
         UpdateRequest memory _updateRequest,
         uint256 value,
         bytes[] memory data
     ) internal override {}
 
+    // Hook called after updating an attestation.
     function _afterUpdate(
         UpdateRequest memory _updateRequest,
         uint256 value,
