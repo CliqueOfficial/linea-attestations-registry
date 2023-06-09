@@ -105,7 +105,7 @@ Steps:
 The function takes three parameters:
 
 - The attestation struct
-- The value (GWEI) sent to the module
+- The value (WEI) sent to the module
 - An array of bytes (additional data) which may be used for custom module logic
 
 4. Once you have deployed your Module to the blockchain, you must register it in the ModulesRegistry for it to be useable on the Attestation Layer.
