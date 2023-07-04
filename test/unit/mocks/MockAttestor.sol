@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Attestor} from "../../src/base/Attestor.sol";
-import {MasterRegistry} from "../../src/MasterRegistry.sol";
-import {SchemasRegistry} from "../../src/SchemasRegistry.sol";
-import {ModulesRegistry} from "../../src/ModulesRegistry.sol";
-import {Attestation} from "../../src/base/Module.sol";
-import {UpdateRequest} from "../../src/libs/Structs.sol";
+import {Attestor} from "../../../src/base/Attestor.sol";
+import {MasterRegistry} from "../../../src/MasterRegistry.sol";
+import {SchemasRegistry} from "../../../src/SchemasRegistry.sol";
+import {ModulesRegistry} from "../../../src/ModulesRegistry.sol";
+import {Attestation} from "../../../src/base/Module.sol";
+import {UpdateRequest} from "../../../src/libs/Structs.sol";
 
 contract MockAttestor is Attestor {
     constructor(

@@ -1,21 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Schema, Field} from "./libs/Structs.sol";
-import {AttestorsRegistry} from "./AttestorsRegistry.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import "./interfaces/ISchemasRegistry.sol";
+import {Schema, Field} from "../../../src/libs/Structs.sol";
+import {AttestorsRegistry} from "../../../src/AttestorsRegistry.sol";
+import "../../../src/interfaces/ISchemasRegistry.sol";
 
-contract SchemasRegistry is ISchemasRegistry, Ownable {
+contract MockSchemasRegistry is ISchemasRegistry {
+    uint256 counter;
     AttestorsRegistry private $attestorsRegistry;
 
     mapping(bytes32 schemaId => Schema schema) private $schemas;
 
     uint256 public schemaCount;
 
-    function setAttestorsRegistry(
-        address _attestorsRegistry
-    ) external onlyOwner {
+    function setAttestorsRegistry(address _attestorsRegistry) external {
         if (_attestorsRegistry == address(0))
             revert InvalidAttestorsRegistryAddress();
         $attestorsRegistry = AttestorsRegistry(_attestorsRegistry);
@@ -27,15 +25,7 @@ contract SchemasRegistry is ISchemasRegistry, Ownable {
         address attestor,
         Field[] memory schemaFields
     ) external {
-        if (address($attestorsRegistry) == address(0))
-            revert AttestorsRegistryNotSet();
-
-        bytes32 schemaId = keccak256(
-            abi.encodePacked(msg.sender, attestor, abi.encode(schemaFields))
-        );
-
-        if ($schemas[schemaId].schemaId != bytes32(0))
-            revert SchemaAlreadyExists();
+        bytes32 schemaId = bytes32("1");
 
         // Initialize a new Schema without setting schemaFields yet
         Schema storage newSchema = $schemas[schemaId];
@@ -49,8 +39,6 @@ contract SchemasRegistry is ISchemasRegistry, Ownable {
         for (uint i = 0; i < schemaFields.length; i++) {
             newSchema.schemaFields.push(schemaFields[i]);
         }
-
-        $attestorsRegistry.registerSchema(newSchema);
 
         emit SchemaRegistered(newSchema);
     }

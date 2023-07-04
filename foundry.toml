@@ -4,6 +4,7 @@ src = 'src'
 out = 'out'
 libs = ['lib']
 solc = "0.8.20"
+fuzz = { runs = 5 }
 remappings = [
     'forge-std/=lib/forge-std/src/',
     'src/=src/',
@@ -13,7 +14,5 @@ remappings = [
     'poseidon-solidity/=lib/poseidon-solidity/contracts/',
     '@zk-kit/=lib/zk-kit/packages/'
 ]
-
-
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Schema} from "../../src/libs/Structs.sol";
+import {Schema} from "../../../src/libs/Structs.sol";
 
 error DoesNotImplementAttestor();
 error OnlySchemasRegistry();

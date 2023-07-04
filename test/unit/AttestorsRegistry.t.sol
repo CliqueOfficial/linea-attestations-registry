@@ -5,11 +5,11 @@ import "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
 import {StdCheats} from "forge-std/StdCheats.sol";
 
-import {MasterRegistry, Attestation, UpdateRequest} from "../src/MasterRegistry.sol";
-import "../src/AttestorsRegistry.sol";
+import {MasterRegistry, Attestation, UpdateRequest} from "../../src/MasterRegistry.sol";
+import "../../src/AttestorsRegistry.sol";
 import {MockAttestor} from "./mocks/MockAttestor.sol";
-import {SchemasRegistry} from "../src/SchemasRegistry.sol";
-import {ModulesRegistry} from "../src/ModulesRegistry.sol";
+import {SchemasRegistry, Field} from "../../src/SchemasRegistry.sol";
+import {ModulesRegistry} from "../../src/ModulesRegistry.sol";
 import {MockModule} from "./mocks/MockModule.sol";
 
 contract AttestorsRegistryTest is Test {
@@ -77,8 +77,15 @@ contract AttestorsRegistryTest is Test {
                         registerSchema TESTS
     //////////////////////////////////////////////////////////////*/
 
-    function test_registerSchema(Schema memory schema) external {
-        schema.attestor = address(mockAttestor);
+    function test_registerSchema() external {
+        Field[] memory schemaFields = new Field[](0);
+        Schema memory schema = Schema({
+            schemaId: bytes32(0),
+            schemaNumber: 1,
+            creator: address(0),
+            attestor: address(mockAttestor),
+            schemaFields: schemaFields
+        });
         attestorsRegistry.registerAttestor(address(mockAttestor));
         vm.prank(address(schemasRegistry));
         attestorsRegistry.registerSchema(schema);
@@ -90,25 +97,42 @@ contract AttestorsRegistryTest is Test {
         );
     }
 
-    function test_registerSchema_OnlySchemasRegistry(
-        Schema memory schema
-    ) external {
+    function test_registerSchema_OnlySchemasRegistry() external {
+        Field[] memory schemaFields = new Field[](0);
+        Schema memory schema = Schema({
+            schemaId: bytes32(0),
+            schemaNumber: 1,
+            creator: address(0),
+            attestor: address(mockAttestor),
+            schemaFields: schemaFields
+        });
         vm.expectRevert(IAttestorsRegistry.OnlySchemasRegistry.selector);
         attestorsRegistry.registerSchema(schema);
     }
 
-    function test_registerSchema_AttestorNotRegistered(
-        Schema memory schema
-    ) external {
+    function test_registerSchema_AttestorNotRegistered() external {
+        Field[] memory schemaFields = new Field[](0);
+        Schema memory schema = Schema({
+            schemaId: bytes32(0),
+            schemaNumber: 1,
+            creator: address(0),
+            attestor: address(mockAttestor),
+            schemaFields: schemaFields
+        });
         vm.prank(address(schemasRegistry));
         vm.expectRevert(IAttestorsRegistry.AttestorNotRegistered.selector);
         attestorsRegistry.registerSchema(schema);
     }
 
-    function test_registerSchema_SchemaAlreadyRegistered(
-        Schema memory schema
-    ) external {
-        schema.attestor = address(mockAttestor);
+    function test_registerSchema_SchemaAlreadyRegistered() external {
+        Field[] memory schemaFields = new Field[](0);
+        Schema memory schema = Schema({
+            schemaId: bytes32(0),
+            schemaNumber: 1,
+            creator: address(0),
+            attestor: address(mockAttestor),
+            schemaFields: schemaFields
+        });
         attestorsRegistry.registerAttestor(address(mockAttestor));
         vm.startPrank(address(schemasRegistry));
         attestorsRegistry.registerSchema(schema);

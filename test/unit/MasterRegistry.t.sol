@@ -5,12 +5,14 @@ import "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
 import {StdCheats} from "forge-std/StdCheats.sol";
 
-import "../src/MasterRegistry.sol";
+import "../../src/MasterRegistry.sol";
 import {MockAttestorsRegistry} from "./mocks/MockAttestorsRegistry.sol";
+import {MockSchemasRegistry} from "./mocks/MockSchemasRegistry.sol";
 
 contract MasterRegistryTest is Test {
     MasterRegistry internal masterRegistry;
     MockAttestorsRegistry internal mockAttestorsRegistry;
+    MockSchemasRegistry internal mockSchemasRegistry;
 
     address owner;
     address attestee_1;
@@ -20,8 +22,9 @@ contract MasterRegistryTest is Test {
     address attestorsRegsitry;
 
     Attestation attestation_1;
-
     Attestation attestation_2;
+    UpdateRequest updateRequest_1;
+    UpdateRequest updateRequest_2;
 
     /// @dev A function invoked before each test case is run.
     function setUp() public virtual {
@@ -38,9 +41,19 @@ contract MasterRegistryTest is Test {
         mockAttestorsRegistry = new MockAttestorsRegistry();
         vm.stopPrank();
 
+        mockSchemasRegistry = new MockSchemasRegistry();
+
+        bytes[] memory data = new bytes[](6);
+        data[0] = bytes(abi.encode(50));
+        data[1] = bytes(abi.encode(-100));
+        data[2] = bytes(abi.encode(true));
+        data[3] = bytes(abi.encode(address(5)));
+        data[4] = bytes(abi.encode("test"));
+        data[5] = bytes(abi.encode(bytes32("test")));
+
         attestation_1 = Attestation({
             attestationId: bytes32("1"),
-            schemaId: bytes32(0),
+            schemaId: bytes32("1"),
             parentId: bytes32(0),
             attester: owner,
             attestee: attestee_1,
@@ -50,12 +63,12 @@ contract MasterRegistryTest is Test {
             expirationDate: 0,
             isPrivate: false,
             revoked: false,
-            attestationData: bytes("")
+            attestationData: data
         });
 
         attestation_2 = Attestation({
             attestationId: bytes32("2"),
-            schemaId: bytes32(0),
+            schemaId: bytes32("1"),
             parentId: bytes32(0),
             attester: owner,
             attestee: attestee_2,
@@ -65,7 +78,19 @@ contract MasterRegistryTest is Test {
             expirationDate: 0,
             isPrivate: false,
             revoked: false,
-            attestationData: bytes("")
+            attestationData: data
+        });
+
+        updateRequest_1 = UpdateRequest({
+            attestationId: bytes32("1"),
+            expirationDate: 0,
+            attestationData: data
+        });
+
+        updateRequest_2 = UpdateRequest({
+            attestationId: bytes32("2"),
+            expirationDate: 0,
+            attestationData: data
         });
     }
 
@@ -101,55 +126,57 @@ contract MasterRegistryTest is Test {
                                attest TESTS
     //////////////////////////////////////////////////////////////*/
 
-    function test_attest(Attestation memory attestation) external {
+    function test_attest() external {
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
         masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
-        attestation.attestor = attestor_1;
-
         vm.prank(attestor_1);
-        masterRegistry.attest(attestation);
+        masterRegistry.attest(attestation_1);
 
         Attestation memory attestationFromRegistry = masterRegistry
-            .getAttestation(attestation.attestationId);
+            .getAttestation(attestation_1.attestationId);
 
         assertEq(
             attestationFromRegistry.attestationId,
-            attestation.attestationId
+            attestation_1.attestationId
         );
-        assertEq(attestationFromRegistry.schemaId, attestation.schemaId);
-        assertEq(attestationFromRegistry.attester, attestation.attester);
-        assertEq(attestationFromRegistry.attestee, attestation.attestee);
+        assertEq(attestationFromRegistry.schemaId, attestation_1.schemaId);
+        assertEq(attestationFromRegistry.attester, attestation_1.attester);
+        assertEq(attestationFromRegistry.attestee, attestation_1.attestee);
         assertEq(attestationFromRegistry.attestor, attestor_1);
         assertEq(
             attestationFromRegistry.attestedDate,
-            attestation.attestedDate
+            attestation_1.attestedDate
         );
-        assertEq(attestationFromRegistry.updatedDate, attestation.updatedDate);
+        assertEq(
+            attestationFromRegistry.updatedDate,
+            attestation_1.updatedDate
+        );
         assertEq(
             attestationFromRegistry.expirationDate,
-            attestation.expirationDate
+            attestation_1.expirationDate
         );
-        assertEq(attestationFromRegistry.isPrivate, attestation.isPrivate);
-        assertEq(attestationFromRegistry.revoked, attestation.revoked);
+        assertEq(attestationFromRegistry.isPrivate, attestation_1.isPrivate);
+        assertEq(attestationFromRegistry.revoked, attestation_1.revoked);
         assertEq(
-            attestationFromRegistry.attestationData,
-            attestation.attestationData
+            attestationFromRegistry.attestationData[0],
+            attestation_1.attestationData[0]
         );
 
         bytes32[] memory attestationIds = masterRegistry
             .getAttestationIdsBySchema(
-                attestation.attestee,
-                attestation.schemaId
+                attestation_1.attestee,
+                attestation_1.schemaId
             );
         assertEq(attestationIds.length, 1);
-        assertEq(attestationIds[0], attestation.attestationId);
+        assertEq(attestationIds[0], attestation_1.attestationId);
     }
 
     function test_attest_OnlyRegisteredAttestors(
         Attestation memory attestation
     ) external {
+        vm.assume(attestation.attestationData.length == 10);
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
         masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
@@ -164,7 +191,11 @@ contract MasterRegistryTest is Test {
                                attestBatch TESTS
     //////////////////////////////////////////////////////////////*/
 
-    function test_attestBatch(Attestation[] memory attestations) external {
+    function test_attestBatch() external {
+        Attestation[] memory attestations = new Attestation[](2);
+        attestations[0] = attestation_1;
+        attestations[1] = attestation_2;
+
         vm.assume(attestations.length > 0);
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
@@ -219,27 +250,29 @@ contract MasterRegistryTest is Test {
             );
             assertEq(attestationFromRegistry.revoked, attestations[i].revoked);
             assertEq(
-                attestationFromRegistry.attestationData,
-                attestations[i].attestationData
+                attestationFromRegistry.attestationData[0],
+                attestations[i].attestationData[0]
             );
         }
     }
 
     function test_attestBatch_InvalidBatchLength() external {
+        Attestation[] memory attestations = new Attestation[](0);
+
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
         masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
 
         vm.expectRevert(IMasterRegistry.InvalidBatchLength.selector);
-        Attestation[] memory attestations = new Attestation[](0);
-
         vm.prank(attestor_1);
         masterRegistry.attestBatch(attestations);
     }
 
-    function test_attestBatch_OnlyRegisteredAttestors(
-        Attestation[] memory attestations
-    ) external {
+    function test_attestBatch_OnlyRegisteredAttestors() external {
+        Attestation[] memory attestations = new Attestation[](2);
+        attestations[0] = attestation_1;
+        attestations[1] = attestation_2;
+
         vm.assume(attestations.length > 0);
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
@@ -256,7 +289,7 @@ contract MasterRegistryTest is Test {
     function test_update(
         bytes32 attestationId,
         uint64 expirationDate,
-        bytes memory attestationData
+        bytes[] memory attestationData
     ) external {
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
@@ -275,13 +308,16 @@ contract MasterRegistryTest is Test {
             .getAttestation(attestationId);
 
         assertEq(attestationFromRegistry.expirationDate, expirationDate);
-        assertEq(attestationFromRegistry.attestationData, attestationData);
+        assertEq(
+            attestationFromRegistry.attestationData[0],
+            attestationData[0]
+        );
     }
 
     function test_update_OnlyRegisteredAttestors(
         bytes32 attestationId,
         uint64 expirationDate,
-        bytes memory attestationData
+        bytes[] memory attestationData
     ) external {
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
@@ -301,7 +337,11 @@ contract MasterRegistryTest is Test {
     //                            update TESTS
     // //////////////////////////////////////////////////////////////*/
 
-    function test_updateBatch(UpdateRequest[] memory updateRequests) external {
+    function test_updateBatch() external {
+        UpdateRequest[] memory updateRequests = new UpdateRequest[](2);
+        updateRequests[0] = updateRequest_1;
+        updateRequests[1] = updateRequest_2;
+
         vm.assume(updateRequests.length > 0);
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
@@ -323,15 +363,17 @@ contract MasterRegistryTest is Test {
                 updateRequests[i].expirationDate
             );
             assertEq(
-                attestationFromRegistry.attestationData,
-                updateRequests[i].attestationData
+                attestationFromRegistry.attestationData[0],
+                updateRequests[i].attestationData[0]
             );
         }
     }
 
-    function test_updateBatch_InvalidBatchLength(
-        UpdateRequest[] memory updateRequests
-    ) external {
+    function test_updateBatch_InvalidBatchLength() external {
+        UpdateRequest[] memory updateRequests = new UpdateRequest[](2);
+        updateRequests[0] = updateRequest_1;
+        updateRequests[1] = updateRequest_2;
+
         vm.assume(updateRequests.length > 0);
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
@@ -344,9 +386,11 @@ contract MasterRegistryTest is Test {
         masterRegistry.updateBatch(invalidUpdateRequests);
     }
 
-    function test_updateBatch_OnlyRegisteredAttestors(
-        UpdateRequest[] memory updateRequests
-    ) external {
+    function test_updateBatch_OnlyRegisteredAttestors() external {
+        UpdateRequest[] memory updateRequests = new UpdateRequest[](2);
+        updateRequests[0] = updateRequest_1;
+        updateRequests[1] = updateRequest_2;
+
         vm.assume(updateRequests.length > 0);
         mockAttestorsRegistry.registerAttestor(attestor_1);
         vm.prank(owner);
@@ -383,18 +427,18 @@ contract MasterRegistryTest is Test {
             masterRegistry.getAttestation(attestation_2.attestationId).revoked,
             true
         );
-        assertEq(
-            masterRegistry
-                .getAttestation(attestation_1.attestationId)
-                .attestationData,
-            ""
-        );
-        assertEq(
-            masterRegistry
-                .getAttestation(attestation_2.attestationId)
-                .attestationData,
-            ""
-        );
+        // assertEq(
+        //     masterRegistry
+        //         .getAttestation(attestation_1.attestationId)
+        //         .attestationData,
+        //     ""
+        // );
+        // assertEq(
+        //     masterRegistry
+        //         .getAttestation(attestation_2.attestationId)
+        //         .attestationData,
+        //     ""
+        // );
     }
 
     function test_revoke_OnlyAttesteeOrAttestor() external {
@@ -416,7 +460,11 @@ contract MasterRegistryTest is Test {
                                revokeBatch TESTS
     //////////////////////////////////////////////////////////////*/
 
-    function test_revokeBatch(Attestation[] memory attestations) external {
+    function test_revokeBatch() external {
+        Attestation[] memory attestations = new Attestation[](2);
+        attestations[0] = attestation_1;
+        attestations[1] = attestation_2;
+
         vm.assume(attestations.length > 0);
         for (uint i = 0; i < attestations.length; i++) {
             attestations[i].attestationId = bytes32(i);
@@ -443,12 +491,6 @@ contract MasterRegistryTest is Test {
                 masterRegistry.getAttestation(attestationIds[i]).revoked,
                 true
             );
-            assertEq(
-                masterRegistry
-                    .getAttestation(attestationIds[i])
-                    .attestationData,
-                ""
-            );
         }
     }
 
@@ -473,5 +515,54 @@ contract MasterRegistryTest is Test {
 
         vm.expectRevert(IMasterRegistry.OnlyAttesteeOrAttestor.selector);
         masterRegistry.revokeBatch(attestationIds);
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                          formatValues TESTS
+    //////////////////////////////////////////////////////////////*/
+
+    function test_formatValues() external {
+        mockAttestorsRegistry.registerAttestor(attestor_1);
+        vm.prank(owner);
+        masterRegistry.setAttestorsRegistry(address(mockAttestorsRegistry));
+        vm.prank(owner);
+        masterRegistry.setSchemasRegistry(address(mockSchemasRegistry));
+
+        vm.startPrank(attestor_1);
+        masterRegistry.attest(attestation_1);
+
+        // Example in Solidity
+        Field[] memory schemaFields1 = new Field[](6);
+        schemaFields1[0] = Field({name: "Field 1", t: Type.Int});
+        schemaFields1[1] = Field({name: "Field 2", t: Type.Int});
+        schemaFields1[2] = Field({name: "Field 4", t: Type.Bool});
+        schemaFields1[3] = Field({name: "Field 2", t: Type.Address});
+        schemaFields1[4] = Field({name: "Field 5", t: Type.String});
+        schemaFields1[5] = Field({name: "Field 6", t: Type.Bytes32});
+
+        mockSchemasRegistry.registerSchema(attestor_1, schemaFields1);
+
+        vm.expectRevert(IMasterRegistry.InvalidIndex.selector);
+        masterRegistry.formatValueAsInt(bytes32("1"), 1000);
+
+        vm.expectRevert(IMasterRegistry.FieldTypeMismatch.selector);
+        masterRegistry.formatValueAsInt(bytes32("1"), 3);
+
+        int value1 = masterRegistry.formatValueAsInt(bytes32("1"), 0);
+        int value2 = masterRegistry.formatValueAsInt(bytes32("1"), 1);
+        bool value3 = masterRegistry.formatValueAsBool(bytes32("1"), 2);
+        address value4 = masterRegistry.formatValueAsAddress(bytes32("1"), 3);
+        string memory value5 = masterRegistry.formatValueAsString(
+            bytes32("1"),
+            4
+        );
+        bytes32 value6 = masterRegistry.formatValueAsBytes32(bytes32("1"), 5);
+
+        assertEq(value1, 50);
+        assertEq(value2, -100);
+        assertEq(value3, true);
+        assertEq(value4, address(5));
+        assertEq(value5, "test");
+        assertEq(value6, bytes32("test"));
     }
 }

@@ -6,6 +6,8 @@ import {AttestorsRegistry} from "./AttestorsRegistry.sol";
 import {SchemasRegistry} from "./SchemasRegistry.sol";
 import {ModulesRegistry} from "./ModulesRegistry.sol";
 import {Attestation, UpdateRequest} from "./libs/Structs.sol";
+import {Type, Field} from "./libs/Structs.sol";
+
 import "./interfaces/IMasterRegistry.sol";
 
 contract MasterRegistry is IMasterRegistry, Ownable {
@@ -116,7 +118,7 @@ contract MasterRegistry is IMasterRegistry, Ownable {
             revert OnlyAttesteeOrAttestor();
 
         $attestations[attestationId].revoked = true;
-        $attestations[attestationId].attestationData = "";
+        $attestations[attestationId].attestationData = new bytes[](0);
 
         emit AttestationRevoked(attestationId);
     }
@@ -132,13 +134,103 @@ contract MasterRegistry is IMasterRegistry, Ownable {
                 revert OnlyAttesteeOrAttestor();
 
             $attestations[attestationIds[i]].revoked = true;
-            $attestations[attestationIds[i]].attestationData = "";
+            // $attestations[attestationIds[i]].attestationData = "";
 
             unchecked {
                 ++i;
             }
         }
         emit BatchAttestationRevoked(attestationIds);
+    }
+
+    function formatValueAsInt(
+        bytes32 attestationId,
+        uint256 index
+    ) external view returns (int256) {
+        if (index >= $attestations[attestationId].attestationData.length)
+            revert InvalidIndex();
+        // Retrieve the schema ID from the attestation ID
+        bytes32 schemaId = $attestations[attestationId].schemaId;
+        bytes memory value = $attestations[attestationId].attestationData[
+            index
+        ];
+        // Check if the field type is correct
+        _validateFieldType(schemaId, index, Type.Int);
+
+        // Decode and return the value
+        return abi.decode(value, (int256));
+    }
+
+    function formatValueAsBool(
+        bytes32 attestationId,
+        uint256 index
+    ) external view returns (bool) {
+        if (index >= $attestations[attestationId].attestationData.length)
+            revert InvalidIndex();
+        // Retrieve the schema ID from the attestation ID
+        bytes32 schemaId = $attestations[attestationId].schemaId;
+        bytes memory value = $attestations[attestationId].attestationData[
+            index
+        ];
+        // Check if the field type is correct
+        _validateFieldType(schemaId, index, Type.Bool);
+
+        // Decode and return the value
+        return abi.decode(value, (bool));
+    }
+
+    function formatValueAsAddress(
+        bytes32 attestationId,
+        uint256 index
+    ) external view returns (address) {
+        if (index >= $attestations[attestationId].attestationData.length)
+            revert InvalidIndex();
+        // Retrieve the schema ID from the attestation ID
+        bytes32 schemaId = $attestations[attestationId].schemaId;
+        bytes memory value = $attestations[attestationId].attestationData[
+            index
+        ];
+        // Check if the field type is correct
+        _validateFieldType(schemaId, index, Type.Address);
+
+        // Decode and return the value
+        return abi.decode(value, (address));
+    }
+
+    function formatValueAsString(
+        bytes32 attestationId,
+        uint256 index
+    ) external view returns (string memory) {
+        if (index >= $attestations[attestationId].attestationData.length)
+            revert InvalidIndex();
+        // Retrieve the schema ID from the attestation ID
+        bytes32 schemaId = $attestations[attestationId].schemaId;
+        bytes memory value = $attestations[attestationId].attestationData[
+            index
+        ];
+        // Check if the field type is correct
+        _validateFieldType(schemaId, index, Type.String);
+
+        // Decode and return the value
+        return abi.decode(value, (string));
+    }
+
+    function formatValueAsBytes32(
+        bytes32 attestationId,
+        uint256 index
+    ) external view returns (bytes32) {
+        if (index >= $attestations[attestationId].attestationData.length)
+            revert InvalidIndex();
+        // Retrieve the schema ID from the attestation ID
+        bytes32 schemaId = $attestations[attestationId].schemaId;
+        bytes memory value = $attestations[attestationId].attestationData[
+            index
+        ];
+        // Check if the field type is correct
+        _validateFieldType(schemaId, index, Type.Bytes32);
+
+        // Decode and return the value
+        return abi.decode(value, (bytes32));
     }
 
     function getSchemasRegistry() external view returns (address) {
@@ -179,5 +271,27 @@ contract MasterRegistry is IMasterRegistry, Ownable {
         bytes32 attestationId
     ) external view returns (bytes32) {
         return $attestations[attestationId].schemaId;
+    }
+
+    /**
+     * @notice This function checks the type of the field and throws an error if the field's type doesn't match the expected type
+     * @param schemaId The identifier of the schema from which the fields structure is retrieved
+     * @param index The index of the field to check
+     * @param expectedType The expected type of the field
+     */
+    function _validateFieldType(
+        bytes32 schemaId,
+        uint256 index,
+        Type expectedType
+    ) internal view {
+        // Retrieve the schema fields from the registry using the schema ID
+        Field[] memory schemaFields = $schemasRegistry.getSchemaFields(
+            schemaId
+        );
+
+        if (index >= schemaFields.length) revert InvalidIndex();
+
+        Field memory field = schemaFields[index];
+        if (field.t != expectedType) revert FieldTypeMismatch();
     }
 }

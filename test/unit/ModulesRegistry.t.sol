@@ -5,13 +5,13 @@ import "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
 import {StdCheats} from "forge-std/StdCheats.sol";
 
-import {MasterRegistry, Attestation, UpdateRequest} from "../src/MasterRegistry.sol";
+import {MasterRegistry, Attestation, UpdateRequest} from "../../src/MasterRegistry.sol";
 import {MockAttestorsRegistry} from "./mocks/MockAttestorsRegistry.sol";
-import "../src/ModulesRegistry.sol";
+import "../../src/ModulesRegistry.sol";
 import {MockModule} from "./mocks/MockModule.sol";
-import {SchemasRegistry} from "../src/SchemasRegistry.sol";
-import {AttestorsRegistry} from "../src/AttestorsRegistry.sol";
-import {Module} from "../src/base/Module.sol";
+import {SchemasRegistry} from "../../src/SchemasRegistry.sol";
+import {AttestorsRegistry} from "../../src/AttestorsRegistry.sol";
+import {Module} from "../../src/base/Module.sol";
 
 contract ModulesRegistryTest is Test {
     ModulesRegistry internal modulesRegistry;
