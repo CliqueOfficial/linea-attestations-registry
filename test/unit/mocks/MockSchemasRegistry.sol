@@ -21,10 +21,7 @@ contract MockSchemasRegistry is ISchemasRegistry {
         emit AttestorsRegistrySet(_attestorsRegistry);
     }
 
-    function registerSchema(
-        address attestor,
-        Field[] memory schemaFields
-    ) external {
+    function registerSchema(Field[] memory schemaFields) external {
         bytes32 schemaId = bytes32("1");
 
         // Initialize a new Schema without setting schemaFields yet
@@ -33,7 +30,6 @@ contract MockSchemasRegistry is ISchemasRegistry {
         newSchema.schemaId = schemaId;
         newSchema.schemaNumber = ++schemaCount;
         newSchema.creator = msg.sender;
-        newSchema.attestor = attestor;
 
         // Now manually copy schemaFields array into the newSchema
         for (uint i = 0; i < schemaFields.length; i++) {

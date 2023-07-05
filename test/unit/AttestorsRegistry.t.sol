@@ -31,7 +31,7 @@ contract AttestorsRegistryTest is Test {
         masterRegistry = new MasterRegistry();
         schemasRegistry = new SchemasRegistry();
         modulesRegistry = new ModulesRegistry();
-        attestorsRegistry = new AttestorsRegistry(address(schemasRegistry));
+        attestorsRegistry = new AttestorsRegistry();
 
         mockModule = new MockModule(
             masterRegistry,
@@ -48,96 +48,6 @@ contract AttestorsRegistryTest is Test {
             modulesRegistry,
             modules
         );
-        vm.stopPrank();
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                        registerAttestor TESTS
-    //////////////////////////////////////////////////////////////*/
-
-    function test_registerAttestor() external {
-        attestorsRegistry.registerAttestor(address(mockAttestor));
-        assertTrue(attestorsRegistry.isRegistered(address(mockAttestor)));
-    }
-
-    function test_registerAttestor_InvalidAttestorAddress() external {
-        vm.expectRevert(IAttestorsRegistry.InvalidAttestorAddress.selector);
-        attestorsRegistry.registerAttestor(address(0));
-    }
-
-    function test_registerAttestor_DoesNotImplementAttestor(
-        address attestor
-    ) external {
-        vm.assume(attestor != address(0));
-        vm.expectRevert();
-        attestorsRegistry.registerAttestor(attestor);
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                        registerSchema TESTS
-    //////////////////////////////////////////////////////////////*/
-
-    function test_registerSchema() external {
-        Field[] memory schemaFields = new Field[](0);
-        Schema memory schema = Schema({
-            schemaId: bytes32(0),
-            schemaNumber: 1,
-            creator: address(0),
-            attestor: address(mockAttestor),
-            schemaFields: schemaFields
-        });
-        attestorsRegistry.registerAttestor(address(mockAttestor));
-        vm.prank(address(schemasRegistry));
-        attestorsRegistry.registerSchema(schema);
-        assertTrue(
-            attestorsRegistry.isAttestorSchema(
-                address(mockAttestor),
-                schema.schemaId
-            )
-        );
-    }
-
-    function test_registerSchema_OnlySchemasRegistry() external {
-        Field[] memory schemaFields = new Field[](0);
-        Schema memory schema = Schema({
-            schemaId: bytes32(0),
-            schemaNumber: 1,
-            creator: address(0),
-            attestor: address(mockAttestor),
-            schemaFields: schemaFields
-        });
-        vm.expectRevert(IAttestorsRegistry.OnlySchemasRegistry.selector);
-        attestorsRegistry.registerSchema(schema);
-    }
-
-    function test_registerSchema_AttestorNotRegistered() external {
-        Field[] memory schemaFields = new Field[](0);
-        Schema memory schema = Schema({
-            schemaId: bytes32(0),
-            schemaNumber: 1,
-            creator: address(0),
-            attestor: address(mockAttestor),
-            schemaFields: schemaFields
-        });
-        vm.prank(address(schemasRegistry));
-        vm.expectRevert(IAttestorsRegistry.AttestorNotRegistered.selector);
-        attestorsRegistry.registerSchema(schema);
-    }
-
-    function test_registerSchema_SchemaAlreadyRegistered() external {
-        Field[] memory schemaFields = new Field[](0);
-        Schema memory schema = Schema({
-            schemaId: bytes32(0),
-            schemaNumber: 1,
-            creator: address(0),
-            attestor: address(mockAttestor),
-            schemaFields: schemaFields
-        });
-        attestorsRegistry.registerAttestor(address(mockAttestor));
-        vm.startPrank(address(schemasRegistry));
-        attestorsRegistry.registerSchema(schema);
-        vm.expectRevert(IAttestorsRegistry.SchemaAlreadyRegistered.selector);
-        attestorsRegistry.registerSchema(schema);
         vm.stopPrank();
     }
 }

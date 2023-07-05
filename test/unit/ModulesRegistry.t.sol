@@ -30,7 +30,7 @@ contract ModulesRegistryTest is Test {
         modulesRegistry = new ModulesRegistry();
         masterRegistry = new MasterRegistry();
         schemasRegistry = new SchemasRegistry();
-        attestorsRegistry = new AttestorsRegistry(address(schemasRegistry));
+        attestorsRegistry = new AttestorsRegistry();
         mockModule = new MockModule(
             masterRegistry,
             schemasRegistry,

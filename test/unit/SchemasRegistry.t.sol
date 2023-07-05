@@ -68,35 +68,31 @@ contract SchemasRegistryTest is Test {
     //                       registerSchema TESTS
     // //////////////////////////////////////////////////////////////*/
 
-    function test_registerSchema(address attestor) external {
+    function test_registerSchema() external {
         Field[] memory schemaFields = new Field[](2);
         schemaFields[0] = Field("name", Type.String);
         schemaFields[1] = Field("age", Type.String);
         vm.prank(owner);
         schemasRegistry.setAttestorsRegistry((address(mockAttestorsRegistry)));
-        schemasRegistry.registerSchema(attestor, schemaFields);
+        schemasRegistry.registerSchema(schemaFields);
     }
 
-    function test_registerSchema_AttestorsRegistryNotSet(
-        address attestor
-    ) external {
+    function test_registerSchema_AttestorsRegistryNotSet() external {
         Field[] memory schemaFields = new Field[](2);
         schemaFields[0] = Field("name", Type.String);
         schemaFields[1] = Field("age", Type.String);
         vm.expectRevert(ISchemasRegistry.AttestorsRegistryNotSet.selector);
-        schemasRegistry.registerSchema(attestor, schemaFields);
+        schemasRegistry.registerSchema(schemaFields);
     }
 
-    function test_registerSchema_SchemaAlreadyExists(
-        address attestor
-    ) external {
+    function test_registerSchema_SchemaAlreadyExists() external {
         Field[] memory schemaFields = new Field[](2);
         schemaFields[0] = Field("name", Type.String);
         schemaFields[1] = Field("age", Type.String);
         vm.prank(owner);
         schemasRegistry.setAttestorsRegistry((address(mockAttestorsRegistry)));
-        schemasRegistry.registerSchema(attestor, schemaFields);
+        schemasRegistry.registerSchema(schemaFields);
         vm.expectRevert(ISchemasRegistry.SchemaAlreadyExists.selector);
-        schemasRegistry.registerSchema(attestor, schemaFields);
+        schemasRegistry.registerSchema(schemaFields);
     }
 }

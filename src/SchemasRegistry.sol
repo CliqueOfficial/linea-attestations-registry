@@ -23,15 +23,12 @@ contract SchemasRegistry is ISchemasRegistry, Ownable {
         emit AttestorsRegistrySet(_attestorsRegistry);
     }
 
-    function registerSchema(
-        address attestor,
-        Field[] memory schemaFields
-    ) external {
+    function registerSchema(Field[] memory schemaFields) external {
         if (address($attestorsRegistry) == address(0))
             revert AttestorsRegistryNotSet();
 
         bytes32 schemaId = keccak256(
-            abi.encodePacked(msg.sender, attestor, abi.encode(schemaFields))
+            abi.encodePacked(abi.encode(schemaFields))
         );
 
         if ($schemas[schemaId].schemaId != bytes32(0))
@@ -43,16 +40,27 @@ contract SchemasRegistry is ISchemasRegistry, Ownable {
         newSchema.schemaId = schemaId;
         newSchema.schemaNumber = ++schemaCount;
         newSchema.creator = msg.sender;
-        newSchema.attestor = attestor;
 
         // Now manually copy schemaFields array into the newSchema
         for (uint i = 0; i < schemaFields.length; i++) {
             newSchema.schemaFields.push(schemaFields[i]);
         }
 
-        $attestorsRegistry.registerSchema(newSchema);
-
         emit SchemaRegistered(newSchema);
+    }
+
+    function checkSchemaExists(
+        Field[] memory schemaFields
+    ) external view returns (bytes32) {
+        bytes32 schemaId = keccak256(
+            abi.encodePacked(abi.encode(schemaFields))
+        );
+
+        if ($schemas[schemaId].schemaId != bytes32(0)) {
+            return schemaId;
+        } else {
+            return bytes32(0);
+        }
     }
 
     function getSchemaFields(

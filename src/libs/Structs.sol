@@ -41,7 +41,6 @@ struct Schema {
     bytes32 schemaId; // The unique identifier of the schema.
     uint256 schemaNumber; // The schema number.
     address creator; // The address of the schema creator.
-    address attestor; // The address of the Attestor smart contract.
     Field[] schemaFields; // The schema string.
 }
 
