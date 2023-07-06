@@ -61,6 +61,8 @@ This relationship is Many-To-Many, through the intermediary of an Attestor. A Mo
 
 Please note that these are the relationships based on the current structure of the system. Any changes to the design or functionality may affect these relationships.
 
+## Components
+
 ### Master Registry
 
 This registry serves as a repository for all attestation instances. Its primary role is to:
