@@ -54,7 +54,9 @@ Schema: A template that dictates the structural format of attestation data.
 Attestation: An entry of structured data, associated with a specific address, stored in the MasterRegistry.
 
 ## Relationships
-Attestor - Schema
+
+### Attestor - Schema
+
 **Many-To-Many**. An Attestor can handle many Schemas, and a Schema can be used by many Attestors. This relationship allows for the attestation of various types of data, as each Schema defines the structure of a unique type of data.
 
 ### Attestor - Module
