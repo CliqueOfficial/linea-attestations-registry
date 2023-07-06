@@ -43,6 +43,16 @@ Following this architecture, any user can:
 3. register the attestor to the attestors registry.
 4. anyone can now attest attestations through the attestor with logic validation from the modules.
 
+## Vocab
+
+Attestor: A gateway that implements custom business logic prior to submitting attestations to the MasterRegistry.
+
+Module: A unit of functionality that enhances attestation processes, such as privacy controls, fee checks etc.
+
+Schema: A template that dictates the structural format of attestation data.
+
+Attestation: An entry of structured data, associated with a specific address, stored in the MasterRegistry.
+
 ## Relationships
 Attestor - Schema
 This relationship is Many-To-Many. An Attestor can handle many Schemas, and a Schema can be used by many Attestors. This relationship allows for the attestation of various types of data, as each Schema defines the structure of a unique type of data.
