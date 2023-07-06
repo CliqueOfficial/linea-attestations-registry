@@ -310,10 +310,6 @@ abstract contract Attestor is IERC165 {
             revoked: false,
             attestationData: _attestationRequest.attestationData
         });
-        if (
-            $schemasRegistry.getSchema(attestation.schemaId).attestor !=
-            address(this)
-        ) revert UnsupportedSchema();
 
         return attestation;
     }

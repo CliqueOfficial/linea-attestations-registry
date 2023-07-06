@@ -6,6 +6,8 @@ import {AttestorsRegistry} from "./AttestorsRegistry.sol";
 import {SchemasRegistry} from "./SchemasRegistry.sol";
 import {ModulesRegistry} from "./ModulesRegistry.sol";
 import {Attestation, UpdateRequest} from "./libs/Structs.sol";
+import {Type, Field} from "./libs/Structs.sol";
+
 import "./interfaces/IMasterRegistry.sol";
 
 contract MasterRegistry is IMasterRegistry, Ownable {
@@ -116,7 +118,7 @@ contract MasterRegistry is IMasterRegistry, Ownable {
             revert OnlyAttesteeOrAttestor();
 
         $attestations[attestationId].revoked = true;
-        $attestations[attestationId].attestationData = "";
+        $attestations[attestationId].attestationData = new bytes[](0);
 
         emit AttestationRevoked(attestationId);
     }
@@ -132,7 +134,7 @@ contract MasterRegistry is IMasterRegistry, Ownable {
                 revert OnlyAttesteeOrAttestor();
 
             $attestations[attestationIds[i]].revoked = true;
-            $attestations[attestationIds[i]].attestationData = "";
+            // $attestations[attestationIds[i]].attestationData = "";
 
             unchecked {
                 ++i;
@@ -159,6 +161,12 @@ contract MasterRegistry is IMasterRegistry, Ownable {
         return $attestations[attestationId];
     }
 
+    function getAttestationValues(
+        bytes32 attestationId
+    ) external view returns (bytes[] memory) {
+        return $attestations[attestationId].attestationData;
+    }
+
     function getAttestationIdsBySchema(
         address attestee,
         bytes32 schema
@@ -179,5 +187,27 @@ contract MasterRegistry is IMasterRegistry, Ownable {
         bytes32 attestationId
     ) external view returns (bytes32) {
         return $attestations[attestationId].schemaId;
+    }
+
+    /**
+     * @notice This function checks the type of the field and throws an error if the field's type doesn't match the expected type
+     * @param schemaId The identifier of the schema from which the fields structure is retrieved
+     * @param index The index of the field to check
+     * @param expectedType The expected type of the field
+     */
+    function _validateFieldType(
+        bytes32 schemaId,
+        uint256 index,
+        Type expectedType
+    ) internal view {
+        // Retrieve the schema fields from the registry using the schema ID
+        Field[] memory schemaFields = $schemasRegistry.getSchemaFields(
+            schemaId
+        );
+
+        if (index >= schemaFields.length) revert InvalidIndex();
+
+        Field memory field = schemaFields[index];
+        if (field.t != expectedType) revert FieldTypeMismatch();
     }
 }

@@ -10,7 +10,7 @@ struct EIP712Signature {
 struct UpdateRequest {
     bytes32 attestationId;
     uint64 expirationDate;
-    bytes attestationData;
+    bytes[] attestationData;
 }
 
 struct AttestationRequest {
@@ -19,7 +19,7 @@ struct AttestationRequest {
     address attestor; // The Attestor smart contract address.
     address attestee; // The Attestee address (receiving attestation).
     uint64 expirationDate; // The expiration date of the attestation.
-    bytes attestationData; // The attestation data.
+    bytes[] attestationData; // The attestation data.
 }
 
 struct Attestation {
@@ -34,15 +34,28 @@ struct Attestation {
     uint64 expirationDate; // The expiration date of the attestation.
     bool isPrivate; // Whether the attestation is private or public.
     bool revoked; // Whether the attestation is revoked or not.
-    bytes attestationData; // The attestation data.
+    bytes[] attestationData; // The attestation data.
 }
 
 struct Schema {
     bytes32 schemaId; // The unique identifier of the schema.
     uint256 schemaNumber; // The schema number.
     address creator; // The address of the schema creator.
-    address attestor; // The address of the Attestor smart contract.
-    bool isPrivate; // Whether the schema is private or public.
-    bool onChainAttestation; // Whether the schema requires on-chain attestation.
-    string schema; // The schema string.
+    Field[] schemaFields; // The schema string.
+}
+
+// Define a set of supported types
+enum Type {
+    None,
+    Int,
+    Bool,
+    Address,
+    String,
+    Bytes32
+}
+
+// Define a field structure to hold the name of the field and its type
+struct Field {
+    string name;
+    Type t;
 }

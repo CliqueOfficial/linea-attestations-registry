@@ -8,6 +8,8 @@ interface IMasterRegistry {
     error OnlyAttesteeOrAttestor();
     error InvalidRegistryAddress();
     error InvalidBatchLength();
+    error InvalidIndex();
+    error FieldTypeMismatch();
 
     event AttestorsRegistrySet(address indexed attestorsRegistry);
     event SchemasRegistrySet(address indexed schemasRegistry);

@@ -5,24 +5,21 @@ import "forge-std/Test.sol";
 import {console2} from "forge-std/console2.sol";
 import {StdCheats} from "forge-std/StdCheats.sol";
 
-import {MasterRegistry, Attestation, UpdateRequest} from "../src/MasterRegistry.sol";
+import {MasterRegistry, Attestation, UpdateRequest} from "../../src/MasterRegistry.sol";
 import {MockAttestorsRegistry} from "./mocks/MockAttestorsRegistry.sol";
-import {Module} from "../src/base/Module.sol";
-import "../src/SchemasRegistry.sol";
+import {Module} from "../../src/base/Module.sol";
+import "../../src/SchemasRegistry.sol";
 import {MockAttestor} from "./mocks/MockAttestor.sol";
 import {MockModule} from "./mocks/MockModule.sol";
-import {AttestorsRegistry} from "../src/AttestorsRegistry.sol";
-import {ModulesRegistry} from "../src/ModulesRegistry.sol";
-import {Schema} from "../src/libs/Structs.sol";
+import {AttestorsRegistry} from "../../src/AttestorsRegistry.sol";
+import {ModulesRegistry} from "../../src/ModulesRegistry.sol";
+import {Schema, Field, Type} from "../../src/libs/Structs.sol";
 
 contract SchemasRegistryTest is Test {
     SchemasRegistry internal schemasRegistry;
-    MasterRegistry internal masterRegistry;
     AttestorsRegistry internal attestorsRegistry;
-    ModulesRegistry internal modulesRegistry;
     MockAttestorsRegistry internal mockAttestorsRegistry;
     MockAttestor internal mockAttestor;
-    MockModule internal mockModule;
 
     address owner;
 
@@ -67,37 +64,35 @@ contract SchemasRegistryTest is Test {
         schemasRegistry.setAttestorsRegistry((address(0)));
     }
 
-    /*//////////////////////////////////////////////////////////////
-                          registerSchema TESTS
-    //////////////////////////////////////////////////////////////*/
+    // /*//////////////////////////////////////////////////////////////
+    //                       registerSchema TESTS
+    // //////////////////////////////////////////////////////////////*/
 
-    function test_registerSchema(
-        string memory schema,
-        address attestor
-    ) external {
+    function test_registerSchema() external {
+        Field[] memory schemaFields = new Field[](2);
+        schemaFields[0] = Field("name", Type.String);
+        schemaFields[1] = Field("age", Type.String);
         vm.prank(owner);
         schemasRegistry.setAttestorsRegistry((address(mockAttestorsRegistry)));
-
-        schemasRegistry.registerSchema(attestor, schema, true);
+        schemasRegistry.registerSchema(schemaFields);
     }
 
-    function test_registerSchema_AttestorsRegistryNotSet(
-        string memory schema,
-        address attestor
-    ) external {
+    function test_registerSchema_AttestorsRegistryNotSet() external {
+        Field[] memory schemaFields = new Field[](2);
+        schemaFields[0] = Field("name", Type.String);
+        schemaFields[1] = Field("age", Type.String);
         vm.expectRevert(ISchemasRegistry.AttestorsRegistryNotSet.selector);
-        schemasRegistry.registerSchema(attestor, schema, true);
+        schemasRegistry.registerSchema(schemaFields);
     }
 
-    function test_registerSchema_SchemaAlreadyExists(
-        string memory schema,
-        address attestor
-    ) external {
+    function test_registerSchema_SchemaAlreadyExists() external {
+        Field[] memory schemaFields = new Field[](2);
+        schemaFields[0] = Field("name", Type.String);
+        schemaFields[1] = Field("age", Type.String);
         vm.prank(owner);
         schemasRegistry.setAttestorsRegistry((address(mockAttestorsRegistry)));
-
-        schemasRegistry.registerSchema(attestor, schema, true);
+        schemasRegistry.registerSchema(schemaFields);
         vm.expectRevert(ISchemasRegistry.SchemaAlreadyExists.selector);
-        schemasRegistry.registerSchema(attestor, schema, true);
+        schemasRegistry.registerSchema(schemaFields);
     }
 }
